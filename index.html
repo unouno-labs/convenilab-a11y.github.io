@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>シフト希望提出 | デモ版</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap');
+:root {
+--blue:#0068b7;--blue-light:#e8f4fd;--blue-dark:#004a8f;--accent:#00a0e9;
+--green:#00b050;--green-light:#e6f7ee;--orange:#f5a623;--orange-light:#fff8ec;
+--red:#e53935;--red-light:#fdecea;
+--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;
+--gray-500:#64748b;--gray-700:#334155;--gray-900:#0f172a;
+--shadow-sm:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.10);
+--radius:14px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;}
+
+/* デモバナー */
+.demo-banner{background:linear-gradient(90deg,#7c3aed,#2563eb);color:#fff;text-align:center;padding:10px 16px;font-size:12px;font-weight:700;letter-spacing:.05em;position:sticky;top:0;z-index:200;}
+.demo-banner span{background:rgba(255,255,255,.2);padding:2px 10px;border-radius:20px;margin-right:8px;}
+
+.header{background:linear-gradient(135deg,var(–blue-dark) 0%,var(–blue) 60%,var(–accent) 100%);color:#fff;padding:18px 20px 16px;position:sticky;top:40px;z-index:100;box-shadow:0 2px 12px rgba(0,68,143,.25);}
+.header-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.header-logo{display:flex;align-items:center;gap:10px;}
+.logo-badge{width:38px;height:38px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.18);}
+.logo-badge svg{width:22px;height:22px;}
+.header-title{font-size:15px;font-weight:700;line-height:1.3;}
+.header-sub{font-size:11px;opacity:.8;margin-top:1px;}
+.tab-switcher{display:flex;background:rgba(255,255,255,.15);border-radius:20px;padding:3px;gap:2px;}
+.tab-btn{padding:5px 12px;border:none;background:transparent;color:rgba(255,255,255,.75);font-size:12px;font-weight:500;border-radius:16px;cursor:pointer;transition:all .2s;font-family:‘Noto Sans JP’,sans-serif;white-space:nowrap;}
+.tab-btn.active{background:#fff;color:var(–blue);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+
+.main{max-width:680px;margin:0 auto;padding:20px 16px 40px;}
+.card{background:#fff;border-radius:var(–radius);padding:20px;margin-bottom:16px;box-shadow:var(–shadow-sm);border:1px solid var(–gray-200);}
+.card-title{font-size:13px;font-weight:700;color:var(–blue);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.card-title .icon{width:24px;height:24px;background:var(–blue-light);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(–gray-700);margin-bottom:6px;}
+.required-badge{display:inline-block;background:var(–red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:5px;vertical-align:middle;}
+.form-input,.form-select{width:100%;padding:11px 14px;border:1.5px solid var(–gray-200);border-radius:var(–radius-sm);font-size:15px;font-family:‘Noto Sans JP’,sans-serif;background:var(–gray-50);color:var(–gray-900);transition:border-color .2s;-webkit-appearance:none;appearance:none;}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(–blue);background:#fff;box-shadow:0 0 0 3px rgba(0,104,183,.1);}
+.form-select-wrap{position:relative;}
+.form-select-wrap::after{content:‘▼’;position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:var(–gray-500);pointer-events:none;}
+
+.deadline-banner{border-radius:var(–radius-sm);padding:14px 16px;margin-bottom:16px;font-size:12.5px;line-height:1.6;background:var(–green-light);border:1.5px solid rgba(0,176,80,.35);color:#1a6b35;}
+.deadline-period{margin-top:6px;background:rgba(255,255,255,.6);border-radius:6px;padding:8px 12px;font-size:13px;font-weight:700;}
+
+.calendar-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-nav-btn{width:34px;height:34px;border:1.5px solid var(–gray-200);border-radius:8px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(–gray-700);transition:all .15s;}
+.cal-nav-btn:hover{border-color:var(–blue);color:var(–blue);}
+.cal-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.cal-month-label{font-size:14px;font-weight:700;}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day-header{text-align:center;font-size:10px;font-weight:700;color:var(–gray-500);padding:4px 0;}
+.cal-day-header.sun{color:var(–red);}
+.cal-day-header.sat{color:var(–blue);}
+.cal-day{aspect-ratio:1;border:1.5px solid var(–gray-200);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;position:relative;background:#fff;color:var(–gray-900);user-select:none;-webkit-tap-highlight-color:transparent;}
+.cal-day.sun{color:var(–red);}
+.cal-day.sat{color:var(–blue);}
+.cal-day.empty{background:transparent;border-color:transparent;cursor:default;}
+.cal-day.out-of-range{opacity:.22;cursor:not-allowed;background:var(–gray-50);}
+.cal-day.in-range{background:#edf7ff;border-color:rgba(0,160,233,.35);}
+.cal-day.selected{background:var(–blue);border-color:var(–blue);color:#fff!important;font-weight:700;box-shadow:0 2px 8px rgba(0,104,183,.35);transform:scale(1.05);}
+.cal-day.today:not(.selected){border-color:var(–orange);font-weight:700;}
+
+.selected-dates-section{margin-top:16px;}
+.selected-dates-label{font-size:12px;font-weight:700;color:var(–gray-700);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.selected-count{background:var(–blue);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.no-date{color:var(–gray-500);font-size:12px;padding:8px 0;display:block;}
+.date-time-row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(–blue-light);border:1.5px solid rgba(0,104,183,.18);border-radius:var(–radius-sm);margin-bottom:8px;animation:slideIn .15s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.date-label{font-size:13px;font-weight:700;color:var(–blue);min-width:76px;flex-shrink:0;}
+.date-label.sun{color:var(–red);}
+.date-label.sat{color:#0055a0;}
+.time-inputs{display:flex;align-items:center;gap:5px;flex:1;}
+.time-sep{font-size:12px;color:var(–gray-500);font-weight:600;flex-shrink:0;}
+.time-select{flex:1;padding:7px 4px;border:1.5px solid var(–gray-200);border-radius:6px;font-size:13px;font-family:‘Noto Sans JP’,sans-serif;background:#fff;-webkit-appearance:none;appearance:none;text-align:center;cursor:pointer;min-width:0;}
+.time-select:focus{outline:none;border-color:var(–blue);}
+.remove-date-btn{width:28px;height:28px;border:none;background:rgba(229,57,53,.1);color:var(–red);border-radius:7px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.remove-date-btn:hover{background:var(–red);color:#fff;}
+.allday-toggle{display:flex;align-items:center;gap:4px;font-size:11px;color:var(–gray-500);cursor:pointer;flex-shrink:0;white-space:nowrap;}
+.allday-toggle input{width:14px;height:14px;cursor:pointer;accent-color:var(–blue);}
+
+.store-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+.store-check-item{position:relative;}
+.store-check-item input[type=“checkbox”]{position:absolute;opacity:0;width:0;height:0;}
+.store-check-label{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;border:1.5px solid var(–gray-200);border-radius:var(–radius-sm);cursor:pointer;transition:all .15s;background:var(–gray-50);font-size:11.5px;line-height:1.3;-webkit-tap-highlight-color:transparent;}
+.store-check-item input:checked+.store-check-label{border-color:var(–green);background:var(–green-light);color:#1a6b35;font-weight:600;}
+.store-checkmark{width:18px;height:18px;border:2px solid var(–gray-300);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:11px;color:transparent;}
+.store-check-item input:checked+.store-check-label .store-checkmark{background:var(–green);border-color:var(–green);color:#fff;}
+
+.submit-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(–blue),var(–accent));color:#fff;border:none;border-radius:var(–radius);font-size:16px;font-weight:700;font-family:‘Noto Sans JP’,sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(0,104,183,.35);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,104,183,.4);}
+
+/* 管理画面 */
+.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:#fff;border-radius:var(–radius-sm);padding:14px 12px;text-align:center;box-shadow:var(–shadow-sm);border:1px solid var(–gray-200);}
+.stat-num{font-size:24px;font-weight:900;color:var(–blue);line-height:1;}
+.stat-label{font-size:10px;color:var(–gray-500);margin-top:4px;font-weight:500;}
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.filter-select{flex:1;min-width:130px;padding:9px 12px;border:1.5px solid var(–gray-200);border-radius:var(–radius-sm);font-size:13px;font-family:‘Noto Sans JP’,sans-serif;background:#fff;-webkit-appearance:none;appearance:none;cursor:pointer;}
+.admin-actions{display:flex;gap:8px;margin-bottom:16px;}
+.action-btn{flex:1;padding:10px;border:1.5px solid var(–gray-200);border-radius:var(–radius-sm);background:#fff;font-size:12px;font-weight:600;font-family:‘Noto Sans JP’,sans-serif;cursor:pointer;color:var(–gray-700);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;}
+.action-btn:hover{border-color:var(–blue);color:var(–blue);}
+.submission-list{display:flex;flex-direction:column;gap:10px;}
+.submission-card{background:#fff;border-radius:var(–radius-sm);padding:14px 16px;box-shadow:var(–shadow-sm);border:1px solid var(–gray-200);}
+.sub-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.sub-name{font-size:14px;font-weight:700;}
+.sub-empid{font-size:11px;color:var(–gray-500);font-family:‘DM Mono’,monospace;margin-top:1px;}
+.sub-store-badge{display:inline-block;background:var(–blue-light);color:var(–blue);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.sub-dates-list{margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.sub-date-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 8px;background:var(–gray-50);border-radius:6px;}
+.sub-date-dow{font-weight:700;min-width:90px;}
+.sub-date-dow.sun{color:var(–red);}
+.sub-date-dow.sat{color:var(–blue);}
+.sub-date-time{color:var(–gray-700);font-family:‘DM Mono’,monospace;font-size:12px;}
+.confirmed-badge{display:inline-flex;align-items:center;gap:4px;background:#e8f5e9;color:#2e7d32;border:1px solid rgba(46,125,50,.3);font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin-left:6px;}
+.confirm-btn{display:inline-flex;align-items:center;gap:3px;background:var(–gray-100);color:var(–gray-500);border:1px solid var(–gray-200);font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;cursor:pointer;margin-left:6px;font-family:‘Noto Sans JP’,sans-serif;transition:all .15s;white-space:nowrap;}
+.confirm-btn:hover{background:var(–green-light);color:var(–green);border-color:var(–green);}
+.other-store-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.other-chip{background:var(–green-light);color:#1a6b35;border:1px solid rgba(0,176,80,.2);font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:5px;}
+.sub-timestamp{font-size:10px;color:var(–gray-300);margin-top:6px;font-family:‘DM Mono’,monospace;}
+.empty-admin{text-align:center;padding:40px 20px;color:var(–gray-500);font-size:13px;line-height:1.7;}
+
+/* デモ用モーダル */
+.demo-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:20px;}
+.demo-modal.show{display:flex;}
+.demo-modal-box{background:#fff;border-radius:var(–radius);padding:24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.demo-modal-icon{font-size:48px;margin-bottom:12px;}
+.demo-modal-title{font-size:18px;font-weight:700;color:var(–green);margin-bottom:8px;}
+.demo-modal-sub{font-size:13px;color:var(–gray-700);line-height:1.6;margin-bottom:16px;}
+.demo-note{background:var(–blue-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(–blue-dark);font-weight:600;margin-bottom:16px;}
+.modal-close-btn{width:100%;padding:12px;background:var(–blue);color:#fff;border:none;border-radius:var(–radius-sm);font-size:14px;font-weight:700;font-family:‘Noto Sans JP’,sans-serif;cursor:pointer;}
+
+.view{display:none;}
+.view.active{display:block;}
+</style>
+
+</head>
+<body>
+
+<div class="demo-banner">
+  <span>🎯 DEMO</span>これはデモ版です。実際のデータは保存されません。
+</div>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="logo-badge">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="2" fill="#0068b7"/>
+          <path d="M8 2v4M16 2v4M3 10h18" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="7" y="13" width="3" height="3" rx=".5" fill="white"/>
+          <rect x="10.5" y="13" width="3" height="3" rx=".5" fill="white"/>
+          <rect x="14" y="13" width="3" height="3" rx=".5" fill="white"/>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">シフト希望提出</div>
+        <div class="header-sub">デモ用サンプル（5店舗版）</div>
+      </div>
+    </div>
+    <div class="tab-switcher">
+      <button class="tab-btn active" onclick="switchTab('crew',this)">提出</button>
+      <button class="tab-btn" onclick="switchTab('admin',this)">管理</button>
+    </div>
+  </div>
+</div>
+
+<!-- クルー入力 -->
+
+<div id="crew-view" class="view active">
+  <div class="main">
+    <div class="deadline-banner">
+      ✅ <strong>今週の締め切り：<span id="deadlineDate"></span>まで</strong>
+      <div class="deadline-period">📅 必須提出期間：<span id="periodText"></span></div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title"><span class="icon">👤</span>基本情報</div>
+  <div class="form-group">
+    <label class="form-label">お名前<span class="required-badge">必須</span></label>
+    <input type="text" class="form-input" id="crewName" placeholder="例：田中 花子">
+  </div>
+  <div class="form-group">
+    <label class="form-label">従業員番号<span class="required-badge">必須</span></label>
+    <input type="text" class="form-input" id="empId" placeholder="1234567（7桁）" maxlength="7" inputmode="numeric">
+  </div>
+  <div class="form-group">
+    <label class="form-label">所属店舗<span class="required-badge">必須</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="homeStore">
+        <option value="">-- 店舗を選択 --</option>
+        <option>サンプルA店</option>
+        <option>サンプルB店</option>
+        <option>サンプルC店</option>
+        <option>サンプルD店</option>
+        <option>サンプルE店</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="icon">📅</span>シフト希望日と時間</div>
+  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px;line-height:1.5;">
+    📌 <b style="color:var(--blue);">水色の日付</b>が必須提出期間です。タップで選択→時間帯を入力してください。
+  </p>
+  <div class="calendar-nav">
+    <button class="cal-nav-btn" id="prevBtn" onclick="changeMonth(-1)">◀</button>
+    <span class="cal-month-label" id="calLabel"></span>
+    <button class="cal-nav-btn" onclick="changeMonth(1)">▶</button>
+  </div>
+  <div class="calendar-grid" id="calGrid"></div>
+  <div class="selected-dates-section">
+    <div class="selected-dates-label">選択した日付<span class="selected-count" id="selCount">0日</span></div>
+    <div id="dateTimeList"><span class="no-date">日付をタップして選択してください</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="icon">🏪</span>他店舗でも勤務できる店舗</div>
+  <div class="store-grid" id="otherStoreGrid"></div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="icon">📝</span>備考</div>
+  <textarea class="form-input" id="crewNote" rows="3" placeholder="例：17時退勤希望 など" style="resize:none;line-height:1.6;"></textarea>
+</div>
+
+<button class="submit-btn" onclick="submitDemo()">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  シフト希望を提出する
+</button>
+```
+
+  </div>
+</div>
+
+<!-- 管理画面 -->
+
+<div id="admin-view" class="view">
+  <div class="main">
+    <div class="admin-stats">
+      <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">提出件数</div></div>
+      <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">対象店舗数</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--green);">3</div><div class="stat-label">他店舗OKの人数</div></div>
+    </div>
+
+```
+<div class="admin-actions">
+  <button class="action-btn">📥 CSVダウンロード</button>
+  <button class="action-btn" style="color:var(--red);">🗑 全データ削除</button>
+</div>
+
+<div class="filter-bar">
+  <div class="form-select-wrap" style="flex:1;min-width:130px;">
+    <select class="filter-select">
+      <option>全店舗</option>
+      <option>サンプルA店</option>
+      <option>サンプルB店</option>
+      <option>サンプルC店</option>
+      <option>サンプルD店</option>
+      <option>サンプルE店</option>
+    </select>
+  </div>
+  <div class="form-select-wrap" style="flex:1;min-width:130px;">
+    <select class="filter-select">
+      <option>全員</option>
+      <option>他店舗OKのみ</option>
+    </select>
+  </div>
+  <div class="form-select-wrap" style="flex:1;min-width:130px;">
+    <select class="filter-select">
+      <option>所属店舗優先</option>
+      <option>提出日時順</option>
+      <option>名前順</option>
+    </select>
+  </div>
+</div>
+
+<div class="submission-list" id="submissionList"></div>
+```
+
+  </div>
+</div>
+
+<!-- 送信完了モーダル -->
+
+<div class="demo-modal" id="demoModal">
+  <div class="demo-modal-box">
+    <div class="demo-modal-icon">✅</div>
+    <div class="demo-modal-title">提出完了！（デモ）</div>
+    <div class="demo-modal-sub">実際のツールではこのデータがスプレッドシートに自動保存され、管理者画面でリアルタイムに確認できます。</div>
+    <div class="demo-note">📊 管理タブで提出状況・シフト確定状況を一括管理</div>
+    <button class="modal-close-btn" onclick="closeModal()">閉じる</button>
+  </div>
+</div>
+
+<script>
+const DEMO_STORES = ['サンプルA店','サンプルB店','サンプルC店','サンプルD店','サンプルE店'];
+
+// 日付ユーティリティ
+const today = new Date(); today.setHours(0,0,0,0);
+let curYear = today.getFullYear(), curMonth = today.getMonth();
+let selDT = {};
+
+function ds(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function ds2d(s){ const p=s.split('-'); return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])); }
+
+function getTargetPeriod(){
+  const dow = today.getDay();
+  const daysFromMon = (dow+6)%7;
+  const thisMon = new Date(today); thisMon.setDate(today.getDate()-daysFromMon);
+  const thisFri = new Date(thisMon); thisFri.setDate(thisMon.getDate()+4);
+  const targetMon = new Date(thisMon); targetMon.setDate(thisMon.getDate()+21);
+  const targetSun = new Date(targetMon); targetSun.setDate(targetMon.getDate()+6);
+  return {thisFri, targetMon, targetSun};
+}
+
+function fmtDate(d){ const days=['日','月','火','水','木','金','土']; return `${d.getMonth()+1}月${d.getDate()}日(${days[d.getDay()]})`; }
+function fmtShort(d){ return `${d.getMonth()+1}月${d.getDate()}日`; }
+
+function initBanner(){
+  const {thisFri, targetMon, targetSun} = getTargetPeriod();
+  document.getElementById('deadlineDate').textContent = fmtDate(thisFri);
+  document.getElementById('periodText').textContent = `${fmtShort(targetMon)}（月）〜${fmtShort(targetSun)}（日）`;
+}
+
+function changeMonth(dir){
+  curMonth += dir;
+  if(curMonth > 11){ curMonth=0; curYear++; }
+  if(curMonth < 0){ curMonth=11; curYear--; }
+  document.getElementById('prevBtn').disabled = (curYear===today.getFullYear() && curMonth===today.getMonth());
+  renderCalendar();
+}
+
+function renderCalendar(){
+  const {targetMon, targetSun} = getTargetPeriod();
+  const maxD = new Date(today); maxD.setDate(today.getDate()+35);
+  document.getElementById('calLabel').textContent = `${curYear}年${curMonth+1}月`;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  ['日','月','火','水','木','金','土'].forEach((h,i)=>{
+    const el = document.createElement('div');
+    el.className = `cal-day-header ${i===0?'sun':i===6?'sat':''}`;
+    el.textContent = h; grid.appendChild(el);
+  });
+  const firstDow = new Date(curYear,curMonth,1).getDay();
+  const dim = new Date(curYear,curMonth+1,0).getDate();
+  for(let i=0;i<firstDow;i++){ const el=document.createElement('div'); el.className='cal-day empty'; grid.appendChild(el); }
+  for(let day=1;day<=dim;day++){
+    const date = new Date(curYear,curMonth,day);
+    const dow = date.getDay();
+    const dateStr = ds(date);
+    const isPast = date < today, isFar = date > maxD;
+    const isSel = dateStr in selDT;
+    const inRange = date >= targetMon && date <= targetSun;
+    const el = document.createElement('div');
+    let cls = 'cal-day';
+    if(dow===0) cls+=' sun'; if(dow===6) cls+=' sat';
+    if(isPast||isFar) cls+=' out-of-range';
+    else if(inRange) cls+=' in-range';
+    if(date.getTime()===today.getTime()) cls+=' today';
+    if(isSel) cls+=' selected';
+    el.className=cls; el.textContent=day;
+    if(!isPast&&!isFar) el.onclick=()=>toggleDate(dateStr);
+    grid.appendChild(el);
+  }
+}
+
+function toggleDate(dateStr){
+  if(dateStr in selDT) delete selDT[dateStr];
+  else selDT[dateStr] = {start:'09:00', end:'17:00', allday:false};
+  renderCalendar(); renderDateTimeList();
+}
+
+function timeOpts(sel){
+  let h='';
+  for(let i=0;i<24;i++) for(let m=0;m<60;m+=30){
+    const v=`${String(i).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    h+=`<option value="${v}"${v===sel?' selected':''}>${v}</option>`;
+  }
+  return h;
+}
+
+function renderDateTimeList(){
+  const keys = Object.keys(selDT).sort();
+  document.getElementById('selCount').textContent = `${keys.length}日`;
+  const list = document.getElementById('dateTimeList');
+  if(!keys.length){ list.innerHTML='<span class="no-date">日付をタップして選択してください</span>'; return; }
+  const days=['日','月','火','水','木','金','土'];
+  list.innerHTML='';
+  keys.forEach(dateStr=>{
+    const d = ds2d(dateStr); const dow = d.getDay();
+    const cls = dow===0?'sun':dow===6?'sat':'';
+    const dt = selDT[dateStr];
+    const row = document.createElement('div');
+    row.className='date-time-row';
+    row.innerHTML=`
+      <div class="date-label ${cls}">${d.getMonth()+1}/${d.getDate()}(${days[dow]})</div>
+      <div class="time-inputs">
+        <select class="time-select" onchange="updTime('${dateStr}','start',this.value)">${timeOpts(dt.start)}</select>
+        <span class="time-sep">〜</span>
+        <select class="time-select" onchange="updTime('${dateStr}','end',this.value)">${timeOpts(dt.end)}</select>
+      </div>
+      <label class="allday-toggle"><input type="checkbox" ${dt.allday?'checked':''} onchange="togAll('${dateStr}',this.checked)">終日</label>
+      <button class="remove-date-btn" onclick="remDate('${dateStr}')">✕</button>`;
+    list.appendChild(row);
+  });
+}
+
+function updTime(dateStr,field,val){ if(selDT[dateStr]) selDT[dateStr][field]=val; }
+function togAll(dateStr,checked){ if(selDT[dateStr]) selDT[dateStr].allday=checked; }
+function remDate(dateStr){ delete selDT[dateStr]; renderCalendar(); renderDateTimeList(); }
+
+function buildOtherStores(){
+  const grid = document.getElementById('otherStoreGrid');
+  DEMO_STORES.forEach(s=>{
+    const item = document.createElement('div');
+    item.className='store-check-item';
+    item.innerHTML=`<input type="checkbox" id="st_${s}" value="${s}">
+      <label class="store-check-label" for="st_${s}">
+        <span class="store-checkmark">✓</span><span>${s}</span>
+      </label>`;
+    grid.appendChild(item);
+  });
+}
+
+function submitDemo(){
+  const name = document.getElementById('crewName').value.trim();
+  const empId = document.getElementById('empId').value.trim();
+  const homeStore = document.getElementById('homeStore').value;
+  if(!name){ alert('お名前を入力してください'); return; }
+  if(!empId || empId.length!==7){ alert('従業員番号は7桁で入力してください'); return; }
+  if(!homeStore){ alert('所属店舗を選択してください'); return; }
+  if(!Object.keys(selDT).length){ alert('シフト希望日を選択してください'); return; }
+  document.getElementById('demoModal').classList.add('show');
+}
+
+function closeModal(){ document.getElementById('demoModal').classList.remove('show'); }
+
+// サンプルデータ（管理画面用）
+const SAMPLE_DATA = [
+  { name:'田中 花子', empId:'1234567', homeStore:'サンプルA店', dates:[
+    {date:'2026-05-19',start:'09:00',end:'17:00'},{date:'2026-05-21',start:'10:00',end:'18:00'},{date:'2026-05-23',start:'09:00',end:'15:00'}
+  ], otherStores:['サンプルB店'], confirmed:{}, timestamp:'2026/05/16 09:15' },
+  { name:'鈴木 太郎', empId:'2345678', homeStore:'サンプルB店', dates:[
+    {date:'2026-05-19',start:'08:00',end:'16:00'},{date:'2026-05-20',start:'12:00',end:'20:00'}
+  ], otherStores:[], confirmed:{}, timestamp:'2026/05/16 10:32' },
+  { name:'山田 美咲', empId:'3456789', homeStore:'サンプルA店', dates:[
+    {date:'2026-05-20',start:'09:00',end:'17:00'},{date:'2026-05-22',start:'09:00',end:'17:00'},{date:'2026-05-24',start:'10:00',end:'16:00'}
+  ], otherStores:['サンプルC店','サンプルD店'], confirmed:{'2026-05-20':'サンプルA店'}, timestamp:'2026/05/16 11:05' },
+  { name:'佐藤 健', empId:'4567890', homeStore:'サンプルC店', dates:[
+    {date:'2026-05-21',start:'17:00',end:'23:00'},{date:'2026-05-22',start:'17:00',end:'23:00'}
+  ], otherStores:[], confirmed:{}, timestamp:'2026/05/16 12:18' },
+  { name:'伊藤 さくら', empId:'5678901', homeStore:'サンプルB店', dates:[
+    {date:'2026-05-19',start:'11:00',end:'19:00'},{date:'2026-05-23',start:'09:00',end:'15:00'},{date:'2026-05-25',start:'10:00',end:'18:00'}
+  ], otherStores:['サンプルA店'], confirmed:{}, timestamp:'2026/05/16 13:44' },
+  { name:'中村 大輔', empId:'6789012', homeStore:'サンプルD店', dates:[
+    {date:'2026-05-20',start:'06:00',end:'10:00'},{date:'2026-05-24',start:'06:00',end:'10:00'}
+  ], otherStores:[], confirmed:{}, timestamp:'2026/05/16 14:22' },
+  { name:'小林 あかね', empId:'7890123', homeStore:'サンプルE店', dates:[
+    {date:'2026-05-22',start:'14:00',end:'22:00'},{date:'2026-05-23',start:'14:00',end:'22:00'}
+  ], otherStores:[], confirmed:{'2026-05-22':'サンプルE店'}, timestamp:'2026/05/16 15:01' },
+  { name:'加藤 りな', empId:'8901234', homeStore:'サンプルC店', dates:[
+    {date:'2026-05-19',start:'09:00',end:'13:00'},{date:'2026-05-21',start:'09:00',end:'13:00'},{date:'2026-05-25',start:'09:00',end:'17:00'}
+  ], otherStores:['サンプルB店'], confirmed:{}, timestamp:'2026/05/16 16:30' },
+];
+
+let confirmedState = {};
+
+function renderAdminList(){
+  const days=['日','月','火','水','木','金','土'];
+  const list = document.getElementById('submissionList');
+  list.innerHTML='';
+  SAMPLE_DATA.forEach((s,idx)=>{
+    const hasOther = s.otherStores.length > 0;
+    const card = document.createElement('div');
+    card.className='submission-card';
+    let datesHtml='';
+    s.dates.forEach(dt=>{
+      const d = ds2d(dt.date);
+      const dow = d.getDay();
+      const cls = dow===0?'sun':dow===6?'sat':'';
+      const label = `${d.getMonth()+1}月${d.getDate()}日(${days[dow]})`;
+      const confKey = `${idx}_${dt.date}`;
+      const isConfirmed = confirmedState[confKey];
+      datesHtml+=`<div class="sub-date-row">
+        <span class="sub-date-dow ${cls}">${label}</span>
+        <span class="sub-date-time">${dt.start} 〜 ${dt.end}</span>
+        ${isConfirmed
+          ? `<span class="confirmed-badge">✅ 確定</span><button class="confirm-btn cancel" onclick="toggleConfirm(${idx},'${dt.date}',true)">解除</button>`
+          : `<button class="confirm-btn" onclick="toggleConfirm(${idx},'${dt.date}',false)">✅ 確定する</button>`
+        }
+      </div>`;
+    });
+    let otherHtml='';
+    if(hasOther){
+      otherHtml=`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--gray-100);">
+        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:4px;">🏪 他店舗OK</div>
+        <div class="other-store-chips">${s.otherStores.map(st=>`<span class="other-chip">${st}</span>`).join('')}</div>
+      </div>`;
+    }
+    card.innerHTML=`
+      <div class="sub-header">
+        <div><div class="sub-name">${s.name} <span style="font-size:11px;color:var(--gray-500);font-family:'DM Mono',monospace;">${s.empId}</span></div></div>
+        <span class="sub-store-badge">${s.homeStore}</span>
+      </div>
+      <div class="sub-dates-list">${datesHtml}</div>
+      ${otherHtml}
+      <div class="sub-timestamp">提出：${s.timestamp}</div>`;
+    list.appendChild(card);
+  });
+}
+
+function toggleConfirm(idx, date, isConfirmed){
+  const key = `${idx}_${date}`;
+  if(isConfirmed){ delete confirmedState[key]; }
+  else { confirmedState[key] = true; }
+  renderAdminList();
+}
+
+function switchTab(tab, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(tab+'-view').classList.add('active');
+  if(tab==='admin') renderAdminList();
+}
+
+// 初期化
+initBanner();
+renderCalendar();
+buildOtherStores();
+document.getElementById('prevBtn').disabled = true;
+</script>
+
+</body>
+</html>
