@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>現場改善ツール一覧 | コンビニ現場改善ラボ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1e;
+  --ink-soft:#3d4461;
+  --ink-muted:#7b82a0;
+  --paper:#fafbff;
+  --paper-2:#f0f2fa;
+  --blue:#1a5fff;
+  --blue-pale:#e8eeff;
+  --green:#00c875;
+  --green-pale:#e0faf0;
+  --amber:#f59e0b;
+  --amber-pale:#fef3c7;
+  --coral:#ff5c5c;
+  --coral-pale:#ffe8e8;
+  --teal:#0097a7;
+  --teal-pale:#e0f7fa;
+  --purple:#7c3aed;
+  --purple-pale:#ede9fe;
+  --border:rgba(10,15,30,.08);
+  --shadow-sm:0 1px 4px rgba(10,15,30,.06),0 4px 16px rgba(10,15,30,.06);
+  --shadow-md:0 2px 8px rgba(10,15,30,.08),0 12px 32px rgba(10,15,30,.1);
+  --r:18px;
+  --r-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(250,251,255,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;}
+.nav-inner{max-width:900px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--ink);letter-spacing:-.02em;}
+.nav-logo span{color:var(--blue);}
+.nav-link{font-size:13px;font-weight:500;color:var(--ink-soft);text-decoration:none;padding:6px 14px;border-radius:20px;transition:all .2s;}
+.nav-link:hover{background:var(--blue-pale);color:var(--blue);}
+.nav-cta{background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:8px 18px;border-radius:20px;text-decoration:none;transition:all .2s;font-family:'Noto Sans JP',sans-serif;}
+.nav-cta:hover{background:#0040cc;transform:translateY(-1px);}
+
+/* ── HERO ── */
+.hero{padding:80px 24px 96px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:700px;background:radial-gradient(ellipse at center,rgba(26,95,255,.1) 0%,transparent 70%);pointer-events:none;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--blue-pale);color:var(--blue);font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;margin-bottom:28px;letter-spacing:.06em;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;background:var(--blue);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
+.hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,6vw,52px);line-height:1.15;letter-spacing:-.04em;color:var(--ink);margin-bottom:20px;}
+.hero h1 em{font-style:normal;color:var(--blue);}
+.hero-sub{font-size:clamp(14px,2vw,17px);color:var(--ink-soft);max-width:520px;margin:0 auto 48px;line-height:1.8;font-weight:300;}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;}
+.hero-stat{text-align:center;}
+.hero-stat-num{font-family:'Syne',sans-serif;font-weight:800;font-size:36px;color:var(--ink);line-height:1;letter-spacing:-.04em;}
+.hero-stat-num span{font-size:18px;color:var(--blue);}
+.hero-stat-label{font-size:12px;color:var(--ink-muted);margin-top:6px;font-weight:500;}
+
+/* ── SECTION ── */
+.section{max-width:900px;margin:0 auto;padding:64px 24px;}
+.section-header{margin-bottom:40px;}
+.section-label{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
+.section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(20px,3vw,30px);color:var(--ink);letter-spacing:-.03em;line-height:1.2;}
+.section-desc{font-size:14px;color:var(--ink-soft);margin-top:10px;line-height:1.7;}
+
+/* ── TOOL CARDS ── */
+.tools-grid{display:grid;grid-template-columns:1fr;gap:20px;}
+@media(min-width:640px){.tools-grid{grid-template-columns:1fr 1fr;}}
+
+.tool-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column;}
+.tool-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);}
+.tool-card.featured{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;}
+@media(max-width:639px){.tool-card.featured{grid-template-columns:1fr;}}
+
+.tool-card-accent{height:4px;}
+.tool-card-body{padding:24px;flex:1;display:flex;flex-direction:column;}
+.tool-card.featured .tool-card-body{padding:32px;}
+
+.tool-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;flex-shrink:0;}
+.tool-name{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--ink);line-height:1.3;margin-bottom:8px;letter-spacing:-.02em;}
+.tool-desc{font-size:13px;color:var(--ink-soft);line-height:1.75;flex:1;margin-bottom:16px;}
+.tool-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.chip{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;color:var(--ink-soft);background:var(--paper-2);}
+.tool-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
+.tool-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;}
+.badge-free{background:var(--green-pale);color:#00875a;}
+.badge-demo{background:var(--blue-pale);color:var(--blue);}
+.badge-inquiry{background:var(--amber-pale);color:#92400e;}
+.badge-soon{background:var(--paper-2);color:var(--ink-muted);}
+
+.tool-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:9px 18px;border-radius:10px;text-decoration:none;border:none;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:#0040cc;transform:translateY(-1px);}
+.btn-outline{background:transparent;color:var(--blue);border:1.5px solid var(--blue);}
+.btn-outline:hover{background:var(--blue-pale);}
+.btn-muted{background:var(--paper-2);color:var(--ink-muted);cursor:not-allowed;}
+
+/* featured card visual side */
+.tool-card-visual{background:linear-gradient(135deg,#eef2ff 0%,#e0e7ff 100%);display:flex;align-items:center;justify-content:center;padding:32px;min-height:240px;}
+.tool-card-visual.green{background:linear-gradient(135deg,#e0faf0 0%,#c6f6e4 100%);}
+.visual-mockup{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);padding:16px;width:100%;max-width:240px;}
+.mockup-bar{height:8px;background:var(--blue);border-radius:4px;margin-bottom:10px;width:60%;}
+.mockup-row{height:6px;background:var(--paper-2);border-radius:3px;margin-bottom:7px;}
+.mockup-row.w80{width:80%;}
+.mockup-row.w60{width:60%;}
+.mockup-row.w90{width:90%;}
+.mockup-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;}
+.mockup-cell{height:32px;background:var(--blue-pale);border-radius:6px;}
+.mockup-cell.green{background:var(--green-pale);}
+.mockup-cell.amber{background:var(--amber-pale);}
+
+/* ── DIVIDER ── */
+.divider{max-width:900px;margin:0 auto;padding:0 24px;}
+.divider hr{border:none;border-top:1px solid var(--border);}
+
+/* ── CTA SECTION ── */
+.cta-section{padding:80px 24px;}
+.cta-box{max-width:700px;margin:0 auto;background:linear-gradient(135deg,var(--ink) 0%,#1a2240 100%);border-radius:24px;padding:56px 40px;text-align:center;position:relative;overflow:hidden;}
+.cta-box::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(26,95,255,.3) 0%,transparent 60%);}
+.cta-box::after{content:'';position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(0,200,117,.2) 0%,transparent 60%);}
+.cta-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;position:relative;z-index:1;}
+.cta-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(22px,4vw,34px);color:#fff;letter-spacing:-.04em;line-height:1.2;margin-bottom:16px;position:relative;z-index:1;}
+.cta-desc{font-size:14px;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:36px;position:relative;z-index:1;max-width:480px;margin-left:auto;margin-right:auto;}
+.cta-btn-wrap{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+.cta-btn-primary{background:#fff;color:var(--blue);font-size:14px;font-weight:900;padding:14px 28px;border-radius:12px;text-decoration:none;font-family:'Noto Sans JP',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.cta-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2);}
+.cta-btn-ghost{background:rgba(255,255,255,.1);color:#fff;font-size:14px;font-weight:700;padding:14px 28px;border-radius:12px;text-decoration:none;font-family:'Noto Sans JP',sans-serif;transition:all .2s;border:1px solid rgba(255,255,255,.2);}
+.cta-btn-ghost:hover{background:rgba(255,255,255,.2);}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);color:rgba(255,255,255,.4);text-align:center;padding:28px 24px;font-size:12px;}
+footer a{color:rgba(255,255,255,.6);text-decoration:none;}
+footer a:hover{color:#fff;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">現場改善<span>ラボ</span></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <a href="https://note.com/convenience_lab" class="nav-link" target="_blank">note</a>
+      <a href="https://note.com/convenience_lab" class="nav-cta" target="_blank">問い合わせ</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">20店舗で実稼働中</div>
+  <h1>現場の課題を、<br><em>ツールで解決する。</em></h1>
+  <p class="hero-sub">コンビニ・飲食の複数店舗運営で培った業務改善ノウハウをツール化。シフト管理から売上分析まで、現場で本当に使えるものだけを公開しています。</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num">20<span>店舗</span></div><div class="hero-stat-label">実稼働中</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">7<span>本</span></div><div class="hero-stat-label">公開ツール</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">無料<span>〜</span></div><div class="hero-stat-label">基本無料で使える</div></div>
+  </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<section class="section">
+  <div class="section-header">
+    <div class="section-label">Tools</div>
+    <div class="section-title">公開中のツール一覧</div>
+    <div class="section-desc">現場で実際に使い続けているツールのみを掲載しています。デモは今すぐ無料でお試しいただけます。</div>
+  </div>
+
+  <div class="tools-grid">
+
+    <!-- シフト管理（featured） -->
+    <div class="tool-card featured">
+      <div class="tool-card-visual">
+        <div class="visual-mockup">
+          <div class="mockup-bar"></div>
+          <div class="mockup-row w80"></div>
+          <div class="mockup-row w60"></div>
+          <div class="mockup-row w90"></div>
+          <div class="mockup-grid">
+            <div class="mockup-cell"></div>
+            <div class="mockup-cell green"></div>
+            <div class="mockup-cell"></div>
+            <div class="mockup-cell green"></div>
+            <div class="mockup-cell"></div>
+            <div class="mockup-cell amber"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card-body">
+        <div class="tool-icon-wrap" style="background:var(--blue-pale);">📅</div>
+        <div class="tool-name">シフト希望提出ツール</div>
+        <div class="tool-desc">LINEや紙でのシフト収集をゼロに。スマホから提出、管理者は一覧確認。複数店舗・他店舗ヘルプ管理・シフト確定機能まで完備。20店舗で実際に稼働中。</div>
+        <div class="tool-chips">
+          <span class="chip">複数店舗対応</span>
+          <span class="chip">スマホ完結</span>
+          <span class="chip">スプレッドシート連携</span>
+          <span class="chip">ヘルプ管理</span>
+          <span class="chip">シフト確定機能</span>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-badge badge-free">無料デモあり</span>
+          <a href="https://convenilab-a11y.github.io/" class="tool-btn btn-primary" target="_blank">デモを試す →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- パート採用 -->
+    <div class="tool-card">
+      <div class="tool-card-accent" style="background:var(--green);"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon-wrap" style="background:var(--green-pale);">🧑‍💼</div>
+        <div class="tool-name">パート採用応募システム</div>
+        <div class="tool-desc">店舗ごとのQRコードで応募受付。応募内容はメールで自動通知。管理者パスワード画面つき。求人票を掲示するだけで即運用できます。</div>
+        <div class="tool-chips">
+          <span class="chip">店舗別QRコード</span>
+          <span class="chip">メール自動通知</span>
+          <span class="chip">管理者画面</span>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-badge badge-soon">準備中</span>
+          <button class="tool-btn btn-muted" disabled>近日公開</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- スタッフサーベイ -->
+    <div class="tool-card">
+      <div class="tool-card-accent" style="background:var(--purple);"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon-wrap" style="background:var(--purple-pale);">📊</div>
+        <div class="tool-name">スタッフ満足度サーベイ</div>
+        <div class="tool-desc">日英バイリンガル対応の5段階アンケート。月1回制限つき。役職別の設問構成。回答はスプレッドシートに自動集計されます。</div>
+        <div class="tool-chips">
+          <span class="chip">日英対応</span>
+          <span class="chip">月1回制限</span>
+          <span class="chip">自動集計</span>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-badge badge-soon">準備中</span>
+          <button class="tool-btn btn-muted" disabled>近日公開</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 利益シミュレーション -->
+    <div class="tool-card">
+      <div class="tool-card-accent" style="background:var(--amber);"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon-wrap" style="background:var(--amber-pale);">💹</div>
+        <div class="tool-name">店舗利益着地シミュレーション</div>
+        <div class="tool-desc">複数店舗の月次・累計利益をリアルタイム予測。担当者別・個店別の多タブ構成。廃棄分析・シミュレーション機能つき。週次会議の資料作成時間を大幅短縮。</div>
+        <div class="tool-chips">
+          <span class="chip">複数店舗対応</span>
+          <span class="chip">月次・累計分析</span>
+          <span class="chip">廃棄率分析</span>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-badge badge-inquiry">要相談</span>
+          <a href="https://note.com/convenience_lab" class="tool-btn btn-outline" target="_blank">問い合わせ</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 店内調理分析 -->
+    <div class="tool-card">
+      <div class="tool-card-accent" style="background:var(--teal);"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon-wrap" style="background:var(--teal-pale);">🍱</div>
+        <div class="tool-name">店内調理販売チャンス分析</div>
+        <div class="tool-desc">店内調理商品の販売数・廃棄数を可視化。売れ筋ランキング・廃棄率マトリクスで改善ポイントを即把握。Excelアップロードで自動更新。</div>
+        <div class="tool-chips">
+          <span class="chip">廃棄率マトリクス</span>
+          <span class="chip">販売ランキング</span>
+          <span class="chip">Excel連携</span>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-badge badge-inquiry">要相談</span>
+          <a href="https://note.com/convenience_lab" class="tool-btn btn-outline" target="_blank">問い合わせ</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 運営品質評価 -->
+    <div class="tool-card">
+      <div class="tool-card-accent" style="background:var(--coral);"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon-wrap" style="background:var(--coral-pale);">⭐</div>
+        <div class="tool-name">店舗運営品質評価ダッシュボード</div>
+        <div class="tool-desc">衛生・清潔・接客などの評価スコアを一元管理。モバイル最適化レイアウト。月次推移グラフでトレンドを即把握。定期巡回評価の記録・共有に活用できます。</div>
+        <div class="tool-chips">
+          <span class="chip">評価スコア管理</span>
+          <span class="chip">月次トレンド</span>
+          <span class="chip">モバイル対応</span>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-badge badge-inquiry">要相談</span>
+          <a href="https://note.com/convenience_lab" class="tool-btn btn-outline" target="_blank">問い合わせ</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- キャンペーン販売 -->
+    <div class="tool-card">
+      <div class="tool-card-accent" style="background:var(--blue);"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon-wrap" style="background:var(--blue-pale);">📈</div>
+        <div class="tool-name">キャンペーン商品販売ダッシュボード</div>
+        <div class="tool-desc">キャンペーン商品の日次販売を複数店舗で一括管理。エリア別フィルター・グラフ・履歴タブつき。キャンペーン期間中の進捗管理に最適です。</div>
+        <div class="tool-chips">
+          <span class="chip">複数店舗対応</span>
+          <span class="chip">エリア別集計</span>
+          <span class="chip">履歴管理</span>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-badge badge-inquiry">要相談</span>
+          <a href="https://note.com/convenience_lab" class="tool-btn btn-outline" target="_blank">問い合わせ</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-box">
+    <div class="cta-label">Custom Development</div>
+    <div class="cta-title">あなたの現場に合わせて<br>カスタマイズします</div>
+    <p class="cta-desc">店舗数・項目・運用フローに合わせたカスタマイズ対応も承ります。「こんなツールが欲しい」というご要望もお気軽にどうぞ。</p>
+    <div class="cta-btn-wrap">
+      <a href="https://note.com/convenience_lab" class="cta-btn-primary" target="_blank">noteで問い合わせる →</a>
+      <a href="https://x.com/Convenience_lab" class="cta-btn-ghost" target="_blank">Xでフォローする</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>コンビニ現場改善ラボ &nbsp;|&nbsp; <a href="https://note.com/convenience_lab" target="_blank">note</a> &nbsp;|&nbsp; <a href="https://x.com/Convenience_lab" target="_blank">X @Convenience_lab</a></p>
+</footer>
+
+</body>
+</html>
