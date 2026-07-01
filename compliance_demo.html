@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【デモ】月次コンプライアンス確認</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@600&display=swap');
+:root{--blue:#0056A8;--slate:#334155;--slate-dark:#1e293b;--slate-light:#e2e8f0;
+--green:#16a34a;--green-light:#dcfce7;--amber:#d97706;--red:#dc2626;--red-light:#fee2e2;
+--white:#fff;--gray-50:#f8f9fc;--gray-100:#eef1f7;--gray-200:#e2e6ef;--gray-300:#c4cad8;--gray-500:#7a8299;--gray-700:#414a63;--gray-900:#1a1e2e;--radius:14px;--shadow:0 4px 24px rgba(0,86,168,.10)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;-webkit-text-size-adjust:100%}
+.demo-banner{background:linear-gradient(90deg,#f59e0b,#d97706);padding:10px 20px;text-align:center;position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.demo-badge{background:#fff;color:#92400e;font-size:11px;font-weight:900;padding:3px 10px;border-radius:5px;letter-spacing:1px}.demo-text{color:#fff;font-size:12px;font-weight:700}
+.site-header{background:linear-gradient(135deg,var(--slate-dark),var(--slate));padding:14px 20px;position:sticky;top:44px;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.2)}
+.site-header-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.site-logo{background:var(--white);border-radius:7px;padding:5px 9px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;color:var(--slate);line-height:1.3;text-align:center}
+.site-title{color:var(--white);font-size:15px;font-weight:700}.site-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:1px}
+.lang{display:flex;gap:4px;background:rgba(255,255,255,.15);border-radius:8px;padding:3px}
+.lang button{padding:5px 11px;background:transparent;border:0;border-radius:6px;color:rgba(255,255,255,.8);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}.lang button.active{background:#fff;color:var(--slate)}
+.wrap{max-width:680px;margin:0 auto;padding:18px}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:8px 4px;margin-bottom:16px}
+.q{padding:14px;border-bottom:1px solid var(--gray-100)}.q:last-child{border-bottom:0}
+.q-txt{font-size:13.5px;font-weight:700;margin-bottom:10px;line-height:1.5}
+.opts{display:flex;gap:8px}
+.opts button{flex:1;padding:10px;border:1.5px solid var(--gray-200);border-radius:10px;background:var(--white);font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer}
+.opts button.yes.on{background:var(--green-light);border-color:var(--green);color:#166534}
+.opts button.no.on{background:var(--red-light);border-color:var(--red);color:#991b1b}
+.submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--slate),var(--slate-dark));color:#fff;border:0;border-radius:12px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;margin-top:4px}
+.submit:disabled{opacity:.5;cursor:not-allowed}
+.result{display:none;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;text-align:center;margin-bottom:16px}
+.result .ic{font-size:44px}.result h2{font-size:19px;font-weight:900;margin:6px 0}
+.result p{font-size:13px;color:var(--gray-700);line-height:1.7}
+.result .warn{background:var(--red-light);color:#991b1b;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700;margin-top:12px;text-align:left}
+.foot{text-align:center;padding:16px 18px 40px;color:var(--gray-500);font-size:12px;line-height:1.9}.foot a{color:var(--slate);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="demo-banner"><span class="demo-badge">DEMO</span><span class="demo-text" data-jp="これはサンプル画面です。回答は保存されません。" data-en="This is a sample. Answers are not saved.">これはサンプル画面です。回答は保存されません。</span></div>
+<header class="site-header"><div class="site-header-inner">
+  <div class="site-logo">コンビニ<br>現場改善ラボ</div>
+  <div style="flex:1;min-width:140px"><div class="site-title" data-jp="月次コンプライアンス確認" data-en="Monthly Compliance Check">月次コンプライアンス確認</div><div class="site-sub" data-jp="毎月の法令・ルール順守をセルフチェック" data-en="Monthly self-check of rules & laws">毎月の法令・ルール順守をセルフチェック</div></div>
+  <div class="lang"><button class="active" onclick="setLang('jp')">日本語</button><button onclick="setLang('en')">EN</button></div>
+</div></header>
+<div class="wrap">
+  <div class="result" id="result">
+    <div class="ic" id="rIc">✅</div><h2 id="rTitle"></h2><p id="rMsg"></p><div class="warn" id="rWarn" style="display:none"></div>
+  </div>
+  <div class="card" id="formCard"><div id="questions"></div></div>
+  <button class="submit" id="btn" disabled onclick="submit()" data-jp="確認を提出する" data-en="Submit check">確認を提出する</button>
+  <div class="foot" data-jp="── コンビニ現場改善ラボのサンプルデモ ──" data-en="── Sample demo ──">── コンビニ現場改善ラボのサンプルデモ ──<br><a href="tools.html">← ツール一覧へもどる</a> ｜ <a href="https://note.com/convenience_lab" target="_blank">noteで問い合わせる</a></div>
+</div>
+<script>
+const items=[
+  {jp:'年齢確認（酒・たばこ）を徹底していますか？', en:'Is age verification (alcohol/tobacco) enforced?'},
+  {jp:'レジ金・釣銭の管理ルールを守っていますか？', en:'Are cash register rules followed?'},
+  {jp:'防犯カメラは正常に稼働していますか？',       en:'Are security cameras working properly?'},
+  {jp:'消費期限・賞味期限を管理していますか？',     en:'Are expiry dates being managed?'},
+  {jp:'従業員の休憩を適切に取得していますか？',     en:'Are staff breaks taken appropriately?'},
+  {jp:'個人情報・シフト表を適切に保管していますか？',en:'Is personal information stored securely?'},
+];
+let lang='jp';const ans=new Array(items.length).fill(null);
+function render(){
+  document.getElementById('questions').innerHTML=items.map((q,i)=>`
+    <div class="q"><div class="q-txt">${i+1}. ${lang==='jp'?q.jp:q.en}</div>
+    <div class="opts">
+      <button class="yes ${ans[i]===1?'on':''}" onclick="pick(${i},1)">${lang==='jp'?'できている':'Yes'}</button>
+      <button class="no ${ans[i]===0?'on':''}" onclick="pick(${i},0)">${lang==='jp'?'できていない':'No'}</button>
+    </div></div>`).join('');
+}
+function pick(i,v){ans[i]=v;render();document.getElementById('btn').disabled=ans.some(a=>a===null);}
+function setLang(l){lang=l;document.querySelectorAll('.lang button').forEach(b=>b.classList.remove('active'));document.querySelector(`.lang button[onclick="setLang('${l}')"]`).classList.add('active');
+  document.querySelectorAll('[data-jp]').forEach(el=>{if(el.children.length===0)el.textContent=el.getAttribute('data-'+l);});
+  document.getElementById('btn').textContent=document.getElementById('btn').getAttribute('data-'+l);render();}
+function submit(){
+  const ng=items.filter((q,i)=>ans[i]===0);
+  const ok=ng.length===0;
+  document.getElementById('rIc').textContent=ok?'✅':'⚠️';
+  document.getElementById('rTitle').textContent=ok?(lang==='jp'?'すべて順守できています':'All items compliant'):(lang==='jp'?'要改善の項目があります':'Items need attention');
+  document.getElementById('rMsg').textContent=lang==='jp'?'提出ありがとうございました。実際は本部・オーナーに自動で共有されます。':'Thank you. In production this is auto-shared with HQ/owner.';
+  const w=document.getElementById('rWarn');
+  if(ok){w.style.display='none';}else{w.style.display='block';w.innerHTML=(lang==='jp'?'要改善：':'To fix: ')+ng.map(q=>lang==='jp'?q.jp:q.en).join('<br>');}
+  document.getElementById('formCard').style.display='none';document.getElementById('btn').style.display='none';
+  document.getElementById('result').style.display='block';window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

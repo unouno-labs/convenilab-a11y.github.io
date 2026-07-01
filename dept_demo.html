@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【デモ】DEPT別 荒利改善ダッシュボード</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@600&display=swap');
+:root{--blue:#0056A8;--indigo:#4338ca;--indigo-dark:#312e81;--indigo-light:#e0e7ff;
+--green:#16a34a;--green-light:#dcfce7;--amber:#d97706;--amber-light:#fef3c7;--red:#dc2626;--red-light:#fee2e2;
+--white:#fff;--gray-50:#f8f9fc;--gray-100:#eef1f7;--gray-200:#e2e6ef;--gray-300:#c4cad8;--gray-500:#7a8299;--gray-700:#414a63;--gray-900:#1a1e2e;--radius:14px;--shadow:0 4px 24px rgba(0,86,168,.10)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;-webkit-text-size-adjust:100%}
+.demo-banner{background:linear-gradient(90deg,#f59e0b,#d97706);padding:10px 20px;text-align:center;position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.demo-badge{background:#fff;color:#92400e;font-size:11px;font-weight:900;padding:3px 10px;border-radius:5px;letter-spacing:1px}.demo-text{color:#fff;font-size:12px;font-weight:700}
+.site-header{background:linear-gradient(135deg,var(--indigo-dark),var(--indigo));padding:14px 20px;position:sticky;top:44px;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.2)}
+.site-header-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.site-logo{background:var(--white);border-radius:7px;padding:5px 9px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;color:var(--indigo);line-height:1.3;text-align:center}
+.site-title{color:var(--white);font-size:15px;font-weight:700}.site-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:1px}
+.wrap{max-width:900px;margin:0 auto;padding:18px}
+.hint{font-size:11px;color:var(--gray-500);margin-bottom:14px;line-height:1.6}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:16px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:11px 10px;text-align:right;border-bottom:1px solid var(--gray-100);font-size:12.5px;white-space:nowrap}
+th{background:var(--gray-50);color:var(--gray-500);font-size:11px;font-weight:700}
+td.nm,th.nm{text-align:left;font-weight:700}
+.gp-bar{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
+.bar{width:90px;height:9px;border-radius:5px;background:var(--gray-100);overflow:hidden}
+.bar span{display:block;height:100%}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.tag.g{background:var(--green-light);color:#166534}.tag.r{background:var(--red-light);color:#991b1b}
+.tag.imp{background:var(--amber-light);color:#92400e}
+tr.focus{background:var(--amber-light)}
+.foot{text-align:center;padding:24px 18px 40px;color:var(--gray-500);font-size:12px;line-height:1.9}.foot a{color:var(--indigo);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="demo-banner"><span class="demo-badge">DEMO</span><span class="demo-text">これはサンプル画面です。数値はすべてダミーです。</span></div>
+<header class="site-header"><div class="site-header-inner">
+  <div class="site-logo">コンビニ<br>現場改善ラボ</div>
+  <div style="flex:1;min-width:150px"><div class="site-title">DEPT別 荒利改善ダッシュボード</div><div class="site-sub">部門ごとの荒利率と改善余地を可視化</div></div>
+</div></header>
+<div class="wrap">
+  <div class="hint">部門（DEPT）ごとの構成比・荒利率・前年比を一覧化。荒利率が基準（オレンジ枠）を下回る部門が、改善の打ち手を考える対象です。</div>
+  <div class="card"><table id="tbl"></table></div>
+  <div class="foot">── コンビニ現場改善ラボのサンプルデモ ──<br>実際は日々の売上データから自動集計され、どの部門を強化すべきかが分かります。<br><a href="tools.html">← ツール一覧へもどる</a> ｜ <a href="https://note.com/convenience_lab" target="_blank">noteで問い合わせる</a></div>
+</div>
+<script>
+const depts=[
+  {n:'ファストフード', comp:8,  gp:42.0, yoy:3.1},
+  {n:'日配（チルド）', comp:26, gp:33.0, yoy:1.2},
+  {n:'加工食品',       comp:22, gp:30.0, yoy:-0.5},
+  {n:'雑貨・日用品',   comp:12, gp:34.0, yoy:0.8},
+  {n:'たばこ',         comp:20, gp:11.0, yoy:-1.8},
+  {n:'飲料・酒',       comp:12, gp:28.0, yoy:2.0},
+];
+const TARGET=29; // 荒利率基準
+const maxGp=Math.max(...depts.map(d=>d.gp));
+document.getElementById('tbl').innerHTML=
+`<thead><tr><th class="nm">部門</th><th>構成比</th><th>荒利率</th><th>前年比</th><th>判定</th></tr></thead><tbody>`+
+depts.map(d=>{
+  const below=d.gp<TARGET && d.comp>=15; // 構成比が大きく荒利率が低い＝改善余地大
+  const col=d.gp>=33?'var(--green)':d.gp>=25?'var(--amber)':'var(--red)';
+  const jt = below?'<span class="tag imp">改善余地 大</span>':(d.yoy>=0?'<span class="tag g">好調</span>':'<span class="tag r">前年割れ</span>');
+  return `<tr class="${below?'focus':''}"><td class="nm">${d.n}</td><td>${d.comp}%</td>
+  <td><div class="gp-bar"><div class="bar"><span style="width:${d.gp/maxGp*100}%;background:${col}"></span></div><b>${d.gp.toFixed(1)}%</b></div></td>
+  <td><span class="tag ${d.yoy>=0?'g':'r'}">${d.yoy>=0?'+':''}${d.yoy.toFixed(1)}%</span></td>
+  <td>${jt}</td></tr>`;
+}).join('')+'</tbody>';
+</script>
+</body>
+</html>
