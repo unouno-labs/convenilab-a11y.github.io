@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【デモ】店内調理 販売チャンス分析</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@600&display=swap');
+:root{
+  --blue:#0056A8;--blue-dark:#003d7a;--blue-light:#e8f0fb;
+  --teal:#0d9488;--teal-light:#ccfbf1;--gold:#F4A300;
+  --green:#16a34a;--green-light:#dcfce7;--red:#dc2626;--red-light:#fee2e2;--amber:#d97706;--amber-light:#fef3c7;
+  --white:#fff;--gray-50:#f8f9fc;--gray-100:#eef1f7;--gray-200:#e2e6ef;
+  --gray-300:#c4cad8;--gray-500:#7a8299;--gray-700:#414a63;--gray-900:#1a1e2e;
+  --radius:14px;--shadow:0 4px 24px rgba(0,86,168,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;-webkit-text-size-adjust:100%}
+.demo-banner{background:linear-gradient(90deg,#f59e0b,#d97706);padding:10px 20px;text-align:center;position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.demo-badge{background:#fff;color:#92400e;font-size:11px;font-weight:900;padding:3px 10px;border-radius:5px;letter-spacing:1px}
+.demo-text{color:#fff;font-size:12px;font-weight:700;line-height:1.5}
+.site-header{background:linear-gradient(135deg,var(--teal),#0f766e);padding:14px 20px;position:sticky;top:44px;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.2)}
+.site-header-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.site-logo{background:var(--white);border-radius:7px;padding:5px 9px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;color:var(--teal);line-height:1.3;text-align:center}
+.site-title-wrap{flex:1;min-width:150px}
+.site-title{color:var(--white);font-size:15px;font-weight:700}
+.site-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:1px}
+.nav-tabs{display:flex;gap:6px}
+.nav-tab{padding:8px 16px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);border-radius:8px;color:rgba(255,255,255,.85);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.nav-tab:hover,.nav-tab.active{background:rgba(255,255,255,.28);color:var(--white);border-color:rgba(255,255,255,.5)}
+.wrap{max-width:1000px;margin:0 auto;padding:18px}
+.page{display:none}.page.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.month-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.month-row .m{font-size:13px;font-weight:700;color:var(--gray-700)}
+.month-row .pill{background:var(--teal-light);color:#0f766e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:900;color:#0f766e;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.card-note{font-size:11px;color:var(--gray-500);margin-bottom:14px;line-height:1.6}
+.rank{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--gray-100)}
+.rank .no{width:26px;height:26px;border-radius:50%;background:var(--gray-100);color:var(--gray-700);font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Oswald',sans-serif}
+.rank:nth-child(1) .no{background:var(--gold);color:#fff}.rank:nth-child(2) .no{background:#cbd5e1;color:#fff}.rank:nth-child(3) .no{background:#e6a86b;color:#fff}
+.rank .nm{width:120px;font-size:13px;font-weight:700;flex-shrink:0}
+.rank .barwrap{flex:1;background:var(--gray-100);border-radius:5px;height:14px;overflow:hidden}
+.rank .barwrap span{display:block;height:100%;background:linear-gradient(90deg,var(--teal),#2dd4bf)}
+.rank .num{width:70px;text-align:right;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px}
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quad{border-radius:12px;padding:14px;min-height:120px}
+.quad h4{font-size:12px;font-weight:900;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.quad.g{background:var(--green-light);border:1.5px solid var(--green)}.quad.g h4{color:#166534}
+.quad.a{background:var(--amber-light);border:1.5px solid var(--amber)}.quad.a h4{color:#92400e}
+.quad.b{background:var(--blue-light);border:1.5px solid var(--blue)}.quad.b h4{color:var(--blue-dark)}
+.quad.r{background:var(--red-light);border:1.5px solid var(--red)}.quad.r h4{color:#991b1b}
+.chip2{display:inline-block;background:rgba(255,255,255,.75);border-radius:20px;font-size:11px;font-weight:700;padding:4px 10px;margin:3px 4px 0 0}
+.chip2 small{color:var(--gray-500);font-weight:700}
+.axis{font-size:10px;color:var(--gray-500);text-align:center;font-weight:700;margin:6px 0}
+.foot{text-align:center;padding:24px 18px 40px;color:var(--gray-500);font-size:12px;line-height:1.9}
+.foot a{color:var(--teal);font-weight:700;text-decoration:none}
+@media(max-width:640px){.rank .nm{width:88px}.matrix{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="demo-banner"><span class="demo-badge">DEMO</span><span class="demo-text">これはサンプル画面です。商品・数値はすべてダミーで、実店舗のデータではありません。</span></div>
+<header class="site-header"><div class="site-header-inner">
+  <div class="site-logo">コンビニ<br>現場改善ラボ</div>
+  <div class="site-title-wrap"><div class="site-title">店内調理 販売チャンス分析</div><div class="site-sub">売れ筋と廃棄を可視化し、作り数を最適化</div></div>
+  <div class="nav-tabs"><button class="nav-tab active" data-tab="rank">販売ランキング</button><button class="nav-tab" data-tab="matrix">廃棄マトリクス</button></div>
+</div></header>
+<div class="wrap">
+  <div class="month-row"><span class="m">2026年6月度</span><span class="pill">店内調理 8品目</span><span class="pill">平均廃棄率 6.4%</span></div>
+
+  <section class="page active" id="page-rank">
+    <div class="card">
+      <div class="card-title">🍗 販売数ランキング</div>
+      <div class="card-note">店内調理商品の月間販売数。売れ筋を把握し、時間帯ごとの作り数の目安にします。</div>
+      <div id="rankBody"></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-matrix">
+    <div class="card">
+      <div class="card-title">🧮 販売数 × 廃棄率 マトリクス</div>
+      <div class="card-note">「よく売れて廃棄が少ない＝拡大」「売れるのに廃棄が多い＝作り方を改善」など、商品ごとの打ち手が一目で分かります。</div>
+      <div class="axis">← 廃棄率 低い ｜ 廃棄率 高い →</div>
+      <div class="matrix">
+        <div class="quad g"><h4>★ 主力（拡大）<span></span></h4><div class="axis" style="text-align:left;margin:0 0 6px">販売数 多い</div><div id="qG"></div></div>
+        <div class="quad a"><h4>⚠ 要改善（作り過ぎ）</h4><div id="qA"></div></div>
+        <div class="quad b"><h4>◎ 維持</h4><div class="axis" style="text-align:left;margin:0 0 6px">販売数 少ない</div><div id="qB"></div></div>
+        <div class="quad r"><h4>✕ 見直し候補</h4><div id="qR"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">── コンビニ現場改善ラボのサンプルデモ ──<br>実際はExcel（POSデータ）をアップロードするだけで、販売・廃棄が自動で分析されます。<br><a href="tools.html">← ツール一覧へもどる</a> ｜ <a href="https://note.com/convenience_lab" target="_blank">noteで問い合わせる</a></div>
+</div>
+<script>
+const items=[
+  {n:'淹れたてカフェ', s:2100, w:12},
+  {n:'からあげクン',   s:1240, w:62},
+  {n:'ソフトクリーム', s:890,  w:18},
+  {n:'おでん',         s:720,  w:108},
+  {n:'Lチキ',          s:680,  w:55},
+  {n:'中華まん',       s:360,  w:24},
+  {n:'アメリカンドッグ',s:410, w:48},
+  {n:'焼き芋',         s:240,  w:40},
+];
+items.forEach(i=>i.rate = i.w/(i.s+i.w)*100);
+const maxS=Math.max(...items.map(i=>i.s));
+// ランキング
+document.getElementById('rankBody').innerHTML = [...items].sort((a,b)=>b.s-a.s).map((i,idx)=>`
+  <div class="rank"><div class="no">${idx+1}</div><div class="nm">${i.n}</div>
+  <div class="barwrap"><span style="width:${Math.round(i.s/maxS*100)}%"></span></div>
+  <div class="num">${i.s.toLocaleString()}</div></div>`).join('');
+// マトリクス（販売高: s>=600, 廃棄高: rate>=8%）
+const g=[],a=[],b=[],r=[];
+items.forEach(i=>{
+  const hiS=i.s>=600, hiW=i.rate>=8;
+  const chip=`<span class="chip2">${i.n} <small>${i.rate.toFixed(1)}%</small></span>`;
+  if(hiS&&!hiW)g.push(chip); else if(hiS&&hiW)a.push(chip); else if(!hiS&&!hiW)b.push(chip); else r.push(chip);
+});
+qG.innerHTML=g.join('')||'<span class="chip2">該当なし</span>';
+qA.innerHTML=a.join('')||'<span class="chip2">該当なし</span>';
+qB.innerHTML=b.join('')||'<span class="chip2">該当なし</span>';
+qR.innerHTML=r.join('')||'<span class="chip2">該当なし</span>';
+// タブ
+document.querySelectorAll('.nav-tab').forEach(t=>{t.onclick=()=>{
+  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+t.dataset.tab).classList.add('active');};});
+</script>
+</body>
+</html>

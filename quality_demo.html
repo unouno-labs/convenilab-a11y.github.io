@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【デモ】店舗運営品質評価ダッシュボード</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@600&display=swap');
+:root{
+  --blue:#0056A8;--blue-dark:#003d7a;--blue-light:#e8f0fb;
+  --coral:#e11d48;--coral-dark:#9f1239;--coral-light:#ffe4e6;--gold:#F4A300;
+  --green:#16a34a;--green-light:#dcfce7;--amber:#d97706;--amber-light:#fef3c7;--red:#dc2626;
+  --white:#fff;--gray-50:#f8f9fc;--gray-100:#eef1f7;--gray-200:#e2e6ef;
+  --gray-300:#c4cad8;--gray-500:#7a8299;--gray-700:#414a63;--gray-900:#1a1e2e;
+  --radius:14px;--shadow:0 4px 24px rgba(0,86,168,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;-webkit-text-size-adjust:100%}
+.demo-banner{background:linear-gradient(90deg,#f59e0b,#d97706);padding:10px 20px;text-align:center;position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.demo-badge{background:#fff;color:#92400e;font-size:11px;font-weight:900;padding:3px 10px;border-radius:5px;letter-spacing:1px}
+.demo-text{color:#fff;font-size:12px;font-weight:700;line-height:1.5}
+.site-header{background:linear-gradient(135deg,var(--coral-dark),var(--coral));padding:14px 20px;position:sticky;top:44px;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.2)}
+.site-header-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.site-logo{background:var(--white);border-radius:7px;padding:5px 9px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;color:var(--coral);line-height:1.3;text-align:center}
+.site-title-wrap{flex:1;min-width:150px}
+.site-title{color:var(--white);font-size:15px;font-weight:700}
+.site-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:1px}
+.nav-tabs{display:flex;gap:6px}
+.nav-tab{padding:8px 16px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);border-radius:8px;color:rgba(255,255,255,.85);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.nav-tab:hover,.nav-tab.active{background:rgba(255,255,255,.28);color:var(--white);border-color:rgba(255,255,255,.5)}
+.wrap{max-width:1000px;margin:0 auto;padding:18px}
+.page{display:none}.page.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.month-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.month-row .m{font-size:13px;font-weight:700;color:var(--gray-700)}
+.month-row .pill{background:var(--coral-light);color:var(--coral-dark);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:900;color:var(--coral-dark);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.card-note{font-size:11px;color:var(--gray-500);margin-bottom:14px;line-height:1.6}
+.store{border:1px solid var(--gray-200);border-radius:12px;padding:14px;margin-bottom:12px}
+.store-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.store-nm{font-size:14px;font-weight:900}
+.score-badge{font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;padding:2px 12px;border-radius:10px}
+.sb-g{background:var(--green-light);color:#166534}.sb-a{background:var(--amber-light);color:#92400e}.sb-r{background:#fee2e2;color:#991b1b}
+.cat{display:flex;align-items:center;gap:10px;padding:5px 0}
+.cat .cn{width:78px;font-size:11px;font-weight:700;color:var(--gray-700);flex-shrink:0}
+.cat .cb{flex:1;background:var(--gray-100);border-radius:5px;height:10px;overflow:hidden}
+.cat .cb span{display:block;height:100%;border-radius:5px}
+.cat .cv{width:34px;text-align:right;font-size:11px;font-weight:700;font-family:'Oswald',sans-serif}
+.trend{display:flex;align-items:flex-end;gap:10px;height:150px;padding-top:10px}
+.trend .t{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.trend .t .bar{width:100%;max-width:40px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#fb7185,var(--coral))}
+.trend .t .v{font-size:10px;font-weight:700;font-family:'Oswald',sans-serif;color:var(--gray-700)}
+.trend .t .lbl{font-size:10px;color:var(--gray-500);font-weight:700}
+.legend{font-size:10px;color:var(--gray-500);margin-top:10px;text-align:center}
+.foot{text-align:center;padding:24px 18px 40px;color:var(--gray-500);font-size:12px;line-height:1.9}
+.foot a{color:var(--coral);font-weight:700;text-decoration:none}
+@media(max-width:640px){.cat .cn{width:64px}}
+</style>
+</head>
+<body>
+<div class="demo-banner"><span class="demo-badge">DEMO</span><span class="demo-text">これはサンプル画面です。店舗名・数値はすべてダミーで、実店舗のデータではありません。</span></div>
+<header class="site-header"><div class="site-header-inner">
+  <div class="site-logo">コンビニ<br>現場改善ラボ</div>
+  <div class="site-title-wrap"><div class="site-title">店舗運営品質評価ダッシュボード</div><div class="site-sub">巡回評価のスコアを一元管理・トレンド把握</div></div>
+  <div class="nav-tabs"><button class="nav-tab active" data-tab="store">店舗別</button><button class="nav-tab" data-tab="trend">月次推移</button></div>
+</div></header>
+<div class="wrap">
+  <div class="month-row"><span class="m">2026年6月度 巡回評価</span><span class="pill">6店舗</span><span class="pill">5項目 100点満点</span></div>
+
+  <section class="page active" id="page-store">
+    <div class="card">
+      <div class="card-title">⭐ 店舗別 評価スコア</div>
+      <div class="card-note">衛生・清潔・接客・品出し・鮮度の5項目を巡回で評価。合計80点未満は要フォロー（オレンジ／赤）です。</div>
+      <div id="storeBody"></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-trend">
+    <div class="card">
+      <div class="card-title">📈 全店平均スコアの月次推移</div>
+      <div class="card-note">改善の手応えを数字で確認。下がった月は要因を振り返り、次月の重点項目を決めます。</div>
+      <div class="trend" id="trend"></div>
+      <div class="legend">※ 100点満点の全店平均</div>
+    </div>
+  </section>
+
+  <div class="foot">── コンビニ現場改善ラボのサンプルデモ ──<br>実際はスマホから巡回評価を入力し、スプレッドシートに自動で記録・共有されます。<br><a href="tools.html">← ツール一覧へもどる</a> ｜ <a href="https://note.com/convenience_lab" target="_blank">noteで問い合わせる</a></div>
+</div>
+<script>
+const cats=['衛生','清潔','接客','品出し','鮮度'];
+const stores=[
+  {n:'緑丘店',      s:[19,18,20,17,18]},
+  {n:'さくら台店',  s:[18,17,16,18,17]},
+  {n:'中央駅前店',  s:[16,15,17,14,16]},
+  {n:'港南台店',    s:[15,14,13,15,14]},
+  {n:'桜木町店',    s:[17,16,18,16,17]},
+  {n:'本郷店',      s:[13,12,14,13,12]},
+];
+function color(v){return v>=17?'var(--green)':v>=14?'var(--amber)':'var(--red)';}
+function badge(t){return t>=90?'sb-g':t>=80?'sb-a':'sb-r';}
+document.getElementById('storeBody').innerHTML=stores.map(st=>{
+  const tot=st.s.reduce((a,b)=>a+b,0);
+  return `<div class="store"><div class="store-top"><div class="store-nm">${st.n}</div><div class="score-badge ${badge(tot)}">${tot}</div></div>
+    ${st.s.map((v,i)=>`<div class="cat"><div class="cn">${cats[i]}</div><div class="cb"><span style="width:${v/20*100}%;background:${color(v)}"></span></div><div class="cv">${v}</div></div>`).join('')}
+  </div>`;
+}).join('');
+const trend=[{l:'1月',v:78},{l:'2月',v:80},{l:'3月',v:79},{l:'4月',v:83},{l:'5月',v:85},{l:'6月',v:87}];
+document.getElementById('trend').innerHTML=trend.map(t=>`<div class="t"><div class="v">${t.v}</div><div class="bar" style="height:${(t.v-60)/40*100}%"></div><div class="lbl">${t.l}</div></div>`).join('');
+document.querySelectorAll('.nav-tab').forEach(t=>{t.onclick=()=>{document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+t.dataset.tab).classList.add('active');};});
+</script>
+</body>
+</html>
