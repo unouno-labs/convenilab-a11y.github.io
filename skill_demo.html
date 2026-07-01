@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【デモ】業務習得チェック（スタッフ育成）</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@600&display=swap');
+:root{--blue:#0056A8;--green:#16a34a;--green-dark:#15803d;--green-light:#dcfce7;--amber:#d97706;--amber-light:#fef3c7;--gray-light:#eef1f7;
+--white:#fff;--gray-50:#f8f9fc;--gray-100:#eef1f7;--gray-200:#e2e6ef;--gray-300:#c4cad8;--gray-500:#7a8299;--gray-700:#414a63;--gray-900:#1a1e2e;--radius:14px;--shadow:0 4px 24px rgba(0,86,168,.10)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;-webkit-text-size-adjust:100%}
+.demo-banner{background:linear-gradient(90deg,#f59e0b,#d97706);padding:10px 20px;text-align:center;position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.demo-badge{background:#fff;color:#92400e;font-size:11px;font-weight:900;padding:3px 10px;border-radius:5px;letter-spacing:1px}
+.demo-text{color:#fff;font-size:12px;font-weight:700}
+.site-header{background:linear-gradient(135deg,var(--green-dark),var(--green));padding:14px 20px;position:sticky;top:44px;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.2)}
+.site-header-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.site-logo{background:var(--white);border-radius:7px;padding:5px 9px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;color:var(--green-dark);line-height:1.3;text-align:center}
+.site-title{color:var(--white);font-size:15px;font-weight:700}.site-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:1px}
+.wrap{max-width:1000px;margin:0 auto;padding:18px}
+.legend{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;font-size:11px;font-weight:700;color:var(--gray-700)}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:14px;height:14px;border-radius:4px;display:inline-block}
+.d0{background:var(--gray-200)}.d1{background:var(--amber)}.d2{background:var(--green)}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:16px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:9px 8px;text-align:center;border-bottom:1px solid var(--gray-100);font-size:12px}
+th{background:var(--gray-50);color:var(--gray-500);font-size:11px;font-weight:700}
+th.nm,td.nm{text-align:left;font-weight:700;white-space:nowrap;position:sticky;left:0;background:var(--white)}
+th.nm{background:var(--gray-50)}
+.cell{width:26px;height:26px;border-radius:7px;margin:0 auto;cursor:pointer;transition:transform .1s}
+.cell:hover{transform:scale(1.15)}
+.rate{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px}
+.rate.hi{color:var(--green)}.rate.mid{color:var(--amber)}.rate.lo{color:var(--gray-500)}
+.hint{font-size:11px;color:var(--gray-500);margin-bottom:12px;line-height:1.6}
+.foot{text-align:center;padding:24px 18px 40px;color:var(--gray-500);font-size:12px;line-height:1.9}
+.foot a{color:var(--green-dark);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="demo-banner"><span class="demo-badge">DEMO</span><span class="demo-text">これはサンプル画面です。氏名・数値はすべてダミーです。</span></div>
+<header class="site-header"><div class="site-header-inner">
+  <div class="site-logo">コンビニ<br>現場改善ラボ</div>
+  <div style="flex:1;min-width:150px"><div class="site-title">業務習得チェック（スタッフ育成）</div><div class="site-sub">誰が何を習得したか、ひと目で見える化</div></div>
+</div></header>
+<div class="wrap">
+  <div class="hint">セルをタップすると「未習得→練習中→習得」が切り替わります。右端に一人ひとりの習得率が出ます。</div>
+  <div class="legend"><span><i class="dot d0"></i>未習得</span><span><i class="dot d1"></i>練習中</span><span><i class="dot d2"></i>習得</span></div>
+  <div class="card"><table id="tbl"></table></div>
+  <div class="foot">── コンビニ現場改善ラボのサンプルデモ ──<br>実際はスプレッドシートに記録され、店舗をまたいで育成の進み具合を共有できます。<br><a href="tools.html">← ツール一覧へもどる</a> ｜ <a href="https://note.com/convenience_lab" target="_blank">noteで問い合わせる</a></div>
+</div>
+<script>
+const skills=['レジ操作','品出し','発注','店内調理','清掃','接客','おでん仕込み','締め作業'];
+const staff=[
+  {n:'サンプル 太郎', lv:[2,2,1,2,2,2,1,1]},
+  {n:'サンプル 花子', lv:[2,2,2,2,2,2,2,2]},
+  {n:'グエン さん',   lv:[2,2,1,1,2,1,0,1]},
+  {n:'サンプル 次郎', lv:[2,1,0,1,2,1,0,0]},
+  {n:'リー さん',     lv:[1,2,1,0,1,1,0,0]},
+];
+function build(){
+  let h='<thead><tr><th class="nm">スタッフ</th>'+skills.map(s=>`<th>${s}</th>`).join('')+'<th>習得率</th></tr></thead><tbody>';
+  staff.forEach((p,pi)=>{
+    h+=`<tr><td class="nm">${p.n}</td>`+p.lv.map((v,si)=>`<td><div class="cell d${v}" onclick="cyc(${pi},${si})"></div></td>`).join('');
+    const rate=Math.round(p.lv.filter(v=>v===2).length/skills.length*100);
+    const cls=rate>=80?'hi':rate>=50?'mid':'lo';
+    h+=`<td><span class="rate ${cls}" id="r${pi}">${rate}%</span></td></tr>`;
+  });
+  document.getElementById('tbl').innerHTML=h+'</tbody>';
+}
+function cyc(pi,si){staff[pi].lv[si]=(staff[pi].lv[si]+1)%3;build();}
+build();
+</script>
+</body>
+</html>

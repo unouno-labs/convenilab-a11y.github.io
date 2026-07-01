@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【デモ】タスク管理（本部指示の見える化）</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@600&display=swap');
+:root{--blue:#0056A8;--blue-dark:#003d7a;--blue-light:#e8f0fb;--orange:#ea580c;--orange-dark:#c2410c;--orange-light:#ffedd5;
+--green:#16a34a;--green-light:#dcfce7;--amber:#d97706;--amber-light:#fef3c7;--red:#dc2626;--red-light:#fee2e2;
+--white:#fff;--gray-50:#f8f9fc;--gray-100:#eef1f7;--gray-200:#e2e6ef;--gray-300:#c4cad8;--gray-500:#7a8299;--gray-700:#414a63;--gray-900:#1a1e2e;--radius:14px;--shadow:0 4px 24px rgba(0,86,168,.10)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;-webkit-text-size-adjust:100%}
+.demo-banner{background:linear-gradient(90deg,#f59e0b,#d97706);padding:10px 20px;text-align:center;position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.demo-badge{background:#fff;color:#92400e;font-size:11px;font-weight:900;padding:3px 10px;border-radius:5px;letter-spacing:1px}
+.demo-text{color:#fff;font-size:12px;font-weight:700}
+.site-header{background:linear-gradient(135deg,var(--orange-dark),var(--orange));padding:14px 20px;position:sticky;top:44px;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.2)}
+.site-header-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.site-logo{background:var(--white);border-radius:7px;padding:5px 9px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;color:var(--orange);line-height:1.3;text-align:center}
+.site-title{color:var(--white);font-size:15px;font-weight:700}.site-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:1px}
+.wrap{max-width:900px;margin:0 auto;padding:18px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;text-align:center}
+.kpi-label{font-size:11px;color:var(--gray-500);font-weight:700}
+.kpi-val{font-size:26px;font-weight:900;font-family:'Oswald',sans-serif;margin-top:2px}
+.kpi.red .kpi-val{color:var(--red)}.kpi.amber .kpi-val{color:var(--amber)}.kpi.green .kpi-val{color:var(--green)}
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.fbtn{padding:7px 15px;background:var(--white);border:1.5px solid var(--gray-300);border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-700);cursor:pointer}
+.fbtn.active{background:var(--orange);border-color:var(--orange);color:#fff}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:8px 4px;margin-bottom:16px}
+.task{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--gray-100)}
+.task:last-child{border-bottom:0}
+.chk{width:22px;height:22px;border-radius:6px;border:2px solid var(--gray-300);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.chk.done{background:var(--green);border-color:var(--green)}
+.task-main{flex:1;min-width:0}
+.task-title{font-size:13.5px;font-weight:700;line-height:1.4}
+.task.done .task-title{text-decoration:line-through;color:var(--gray-500)}
+.task-meta{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--gray-100);color:var(--gray-700)}
+.pill.type{background:var(--blue-light);color:var(--blue)}
+.pill.store{background:var(--orange-light);color:var(--orange-dark)}
+.due{font-size:11px;font-weight:700;white-space:nowrap;text-align:right;flex-shrink:0}
+.due.over{color:var(--red)}.due.soon{color:var(--amber)}.due.ok{color:var(--gray-500)}
+.foot{text-align:center;padding:24px 18px 40px;color:var(--gray-500);font-size:12px;line-height:1.9}
+.foot a{color:var(--orange);font-weight:700;text-decoration:none}
+@media(max-width:560px){.kpi-val{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="demo-banner"><span class="demo-badge">DEMO</span><span class="demo-text">これはサンプル画面です。内容はすべてダミーです。</span></div>
+<header class="site-header"><div class="site-header-inner">
+  <div class="site-logo">コンビニ<br>現場改善ラボ</div>
+  <div style="flex:1;min-width:150px"><div class="site-title">タスク管理（本部指示の見える化）</div><div class="site-sub">埋もれる指示・販促・期限ものをゼロ件に</div></div>
+</div></header>
+<div class="wrap">
+  <div class="kpi-grid">
+    <div class="kpi red"><div class="kpi-label">未対応</div><div class="kpi-val" id="kUn">0</div></div>
+    <div class="kpi amber"><div class="kpi-label">対応中</div><div class="kpi-val" id="kDo">0</div></div>
+    <div class="kpi green"><div class="kpi-label">今週 完了</div><div class="kpi-val" id="kFi">0</div></div>
+  </div>
+  <div class="filters">
+    <button class="fbtn active" data-f="all">すべて</button>
+    <button class="fbtn" data-f="todo">未対応</button>
+    <button class="fbtn" data-f="doing">対応中</button>
+    <button class="fbtn" data-f="done">完了</button>
+  </div>
+  <div class="card" id="list"></div>
+  <div class="foot">── コンビニ現場改善ラボのサンプルデモ ──<br>チェックを付けると状態が変わります。実際は全店で共有され、対応漏れがなくなります。<br><a href="tools.html">← ツール一覧へもどる</a> ｜ <a href="https://note.com/convenience_lab" target="_blank">noteで問い合わせる</a></div>
+</div>
+<script>
+let tasks=[
+  {t:'新レジ袋の価格改定POPを掲示',      ty:'本部指示',store:'全店',   due:-1,st:'todo'},
+  {t:'夏の飲料キャンペーン エンド陳列',    ty:'販促',    store:'全店',   due:1, st:'todo'},
+  {t:'公共料金端末の点検報告',            ty:'期限',    store:'中央駅前店',due:2, st:'doing'},
+  {t:'アルバイト シフト希望の締切連絡',    ty:'期限',    store:'全店',   due:0, st:'todo'},
+  {t:'防犯カメラ 録画状態の確認',          ty:'本部指示',store:'緑丘店', due:3, st:'doing'},
+  {t:'からあげクン 感謝祭の発注登録',      ty:'販促',    store:'全店',   due:5, st:'todo'},
+  {t:'消火器 点検ラベルの更新',            ty:'期限',    store:'港南台店',due:-3,st:'done'},
+  {t:'新人研修シートの回収',              ty:'本部指示',store:'桜木町店',due:-2,st:'done'},
+];
+let filter='all';
+function dueTxt(d){if(d<0)return{c:'over',t:(-d)+'日超過'};if(d===0)return{c:'soon',t:'本日'};if(d<=2)return{c:'soon',t:'あと'+d+'日'};return{c:'ok',t:'あと'+d+'日'};}
+function render(){
+  document.getElementById('kUn').textContent=tasks.filter(t=>t.st==='todo').length;
+  document.getElementById('kDo').textContent=tasks.filter(t=>t.st==='doing').length;
+  document.getElementById('kFi').textContent=tasks.filter(t=>t.st==='done').length;
+  const list=tasks.filter(t=>filter==='all'||t.st===filter);
+  document.getElementById('list').innerHTML=list.map((t)=>{
+    const gi=tasks.indexOf(t);const d=dueTxt(t.due);const done=t.st==='done';
+    return `<div class="task ${done?'done':''}">
+      <div class="chk ${done?'done':''}" onclick="toggle(${gi})">${done?'✓':''}</div>
+      <div class="task-main"><div class="task-title">${t.t}</div>
+      <div class="task-meta"><span class="pill type">${t.ty}</span><span class="pill store">${t.store}</span><span class="pill">${t.st==='doing'?'対応中':t.st==='done'?'完了':'未対応'}</span></div></div>
+      <div class="due ${done?'ok':d.c}">${done?'完了':d.t}</div></div>`;
+  }).join('')||'<div style="padding:20px;text-align:center;color:var(--gray-500);font-size:12px">該当タスクなし 🎉</div>';
+}
+function toggle(i){tasks[i].st = tasks[i].st==='done'?'todo':'done';render();}
+document.querySelectorAll('.fbtn').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.f;render();};});
+render();
+</script>
+</body>
+</html>
