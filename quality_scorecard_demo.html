@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【デモ】店舗品質スコアカード</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@500;600&display=swap');
+:root{--bg:#0f172a;--panel:#1e293b;--panel2:#273449;--line:#334155;--ink:#e2e8f0;--ink2:#94a3b8;--ink3:#64748b;
+--rose:#fb7185;--blue:#38bdf8;--green:#34d399;--amber:#fbbf24;--purple:#c084fc;--gold:#fcd34d;--radius:16px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-text-size-adjust:100%}
+.demo-banner{background:linear-gradient(90deg,#f59e0b,#d97706);padding:9px 20px;text-align:center;position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.demo-badge{background:#fff;color:#92400e;font-size:11px;font-weight:900;padding:3px 10px;border-radius:5px;letter-spacing:1px}.demo-text{color:#fff;font-size:12px;font-weight:700}
+.top{background:linear-gradient(135deg,#0b1220,#1e293b);border-bottom:1px solid var(--line);padding:16px 22px;position:sticky;top:42px;z-index:200}
+.top-inner{max-width:1000px;margin:0 auto}.top-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{background:var(--rose);color:#4c0519;border-radius:8px;padding:5px 10px;font-family:'Oswald',sans-serif;font-weight:600;font-size:11px;line-height:1.25;text-align:center}
+.ttl{flex:1;min-width:170px}.ttl h1{font-size:17px;font-weight:900}.ttl p{font-size:11px;color:var(--ink2);margin-top:2px}
+.tabs{display:flex;gap:4px;margin-top:14px;overflow-x:auto}
+.tab{padding:9px 15px;background:transparent;border:0;border-radius:9px;color:var(--ink2);font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--ink);background:var(--panel2)}.tab.active{background:var(--rose);color:#4c0519}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 18px 60px}
+.page{display:none}.page.active{display:block;animation:rise .35s ease}@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g-rad{grid-template-columns:1.1fr .9fr}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.panel h3{font-size:13px;font-weight:900;display:flex;align-items:center;gap:8px}.panel .note{font-size:11px;color:var(--ink3);margin-top:3px;line-height:1.6}
+.sel{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.sel label{font-size:12px;color:var(--ink2);font-weight:700}
+select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-family:inherit;font-size:13px;font-weight:700}
+.bigscore{text-align:center;margin:6px 0 4px}
+.bigscore .n{font-size:46px;font-weight:900;font-family:'Oswald',sans-serif;line-height:1}
+.bigscore .l{font-size:12px;color:var(--ink2);font-weight:700}
+.brow{display:flex;align-items:center;gap:10px;padding:6px 0}
+.brow .n{width:74px;font-size:12px;font-weight:700;flex-shrink:0}
+.brow .track{flex:1;background:var(--panel2);border-radius:6px;height:14px;overflow:hidden}
+.brow .track span{display:block;height:100%;border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.brow .val{width:38px;text-align:right;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px}
+.rank{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.rank .no{width:24px;height:24px;border-radius:50%;font-family:'Oswald',sans-serif;font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;background:var(--panel2)}
+.rank:nth-child(1) .no{background:var(--gold);color:#4a3200}.rank .nm{flex:1;font-size:13px;font-weight:700}
+.rank .sc{font-family:'Oswald',sans-serif;font-weight:600;font-size:16px}
+svg{display:block;width:100%;overflow:visible}
+.q{padding:12px 0;border-bottom:1px solid var(--line)}.q:last-of-type{border-bottom:0}
+.q .t{font-size:13px;font-weight:700;margin-bottom:8px}
+.stars{display:flex;gap:5px}.star{font-size:26px;cursor:pointer;color:#334155;transition:transform .1s}.star.on{color:var(--gold)}.star:hover{transform:scale(1.15)}
+.seg{display:flex;gap:5px}.seg button{width:40px;height:34px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink3);font-weight:900;font-size:15px;cursor:pointer;font-family:inherit}
+.seg button.ok.on{background:rgba(52,211,153,.2);border-color:var(--green);color:var(--green)}.seg button.na.on{background:rgba(251,191,36,.2);border-color:var(--amber);color:var(--amber)}.seg button.ng.on{background:rgba(251,113,133,.2);border-color:var(--rose);color:var(--rose)}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}.tag.g{background:rgba(52,211,153,.18);color:var(--green)}.tag.a{background:rgba(251,191,36,.18);color:var(--amber)}.tag.r{background:rgba(251,113,133,.18);color:var(--rose)}
+.tip{position:fixed;pointer-events:none;background:#0b1220;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:.12s;z-index:400}
+.foot{text-align:center;padding:30px 18px 10px;color:var(--ink3);font-size:12px;line-height:1.9}.foot a{color:var(--rose);font-weight:700;text-decoration:none}
+@media(max-width:760px){.g2,.g-rad{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="demo-banner"><span class="demo-badge">DEMO</span><span class="demo-text">これはサンプル画面です。店舗名・数値はすべてダミーです。</span></div>
+<div class="top"><div class="top-inner">
+  <div class="top-row"><div class="brand">コンビニ<br>現場改善ラボ</div>
+    <div class="ttl"><h1>店舗品質スコアカード</h1><p>接客・清掃・運営品質を1つの巡回スコアに統合</p></div></div>
+  <div class="tabs"><button class="tab active" data-t="score">店舗スコア</button><button class="tab" data-t="trend">月次推移</button><button class="tab" data-t="input">巡回入力</button></div>
+</div></div>
+<div class="wrap">
+  <!-- スコア -->
+  <section class="page active" id="p-score">
+    <div class="sel"><label>店舗を選択：</label><select id="store" onchange="drawStore()"></select></div>
+    <div class="grid g-rad">
+      <div class="panel">
+        <h3>🕸 品質レーダー（5項目）</h3><div class="note">選択店舗（ピンク）と全店平均（点線）を比較。凹んだ項目が改善ポイント。</div>
+        <svg id="radar" viewBox="0 0 320 300" style="height:300px"></svg>
+      </div>
+      <div class="panel">
+        <div class="bigscore"><div class="n" id="bScore">0</div><div class="l">品質総合スコア（100点満点）</div></div>
+        <div id="catBars" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px"><h3>🏆 店舗ランキング（品質総合）</h3><div id="rankBody" style="margin-top:8px"></div></div>
+  </section>
+  <!-- 推移 -->
+  <section class="page" id="p-trend">
+    <div class="panel"><h3>📈 全店平均スコアの月次推移</h3><div class="note">改善の手応えを数字で確認。点にカーソルで数値表示。</div>
+      <svg id="trend" viewBox="0 0 640 240" style="height:240px"></svg></div>
+  </section>
+  <!-- 入力 -->
+  <section class="page" id="p-input">
+    <div class="grid g2">
+      <div class="panel"><h3>🙌 接客チェック</h3><div class="note">巡回時の接客を星で評価。</div><div id="svcQ" style="margin-top:6px"></div></div>
+      <div class="panel"><h3>🧹 清掃チェック</h3><div class="note">各箇所を ○＝完了 / △＝一部 / ×＝未 で。</div><div id="clnQ" style="margin-top:6px"></div></div>
+    </div>
+    <div class="panel" style="margin-top:14px;text-align:center">
+      <div class="bigscore"><div class="n" id="inScore">—</div><div class="l">この巡回の品質スコア（入力に応じて自動計算）</div></div>
+    </div>
+  </section>
+  <div class="foot">── コンビニ現場改善ラボのサンプルデモ ──<br>実際はスマホから巡回入力し、スコアがスプレッドシートに記録・共有されます。<br><a href="tools.html">← ツール一覧へもどる</a> ｜ <a href="https://note.com/convenience_lab" target="_blank">noteで問い合わせる</a></div>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+const NS='http://www.w3.org/2000/svg';const el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const tip=document.getElementById('tip');const showTip=(e,h)=>{tip.innerHTML=h;tip.style.opacity=1;tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-10)+'px';};const hideTip=()=>tip.style.opacity=0;
+const cats=['接客','清掃','衛生','品出し','鮮度'];
+const stores=[
+  {n:'緑丘店',    s:[88,92,90,85,89]},
+  {n:'さくら台店',s:[82,85,86,88,84]},
+  {n:'桜木町店',  s:[86,84,88,83,85]},
+  {n:'中央駅前店',s:[80,78,82,75,80]},
+  {n:'港南台店',  s:[74,72,76,75,73]},
+  {n:'本郷店',    s:[68,70,72,69,66]},
+];
+const avg=cats.map((_,i)=>Math.round(stores.reduce((a,s)=>a+s.s[i],0)/stores.length));
+const comp=s=>Math.round(s.s.reduce((a,b)=>a+b,0)/s.s.length);
+const col=v=>v>=85?'var(--green)':v>=75?'var(--amber)':'var(--rose)';
+document.getElementById('store').innerHTML=stores.map((s,i)=>`<option value="${i}">${s.n}（${comp(s)}点）</option>`).join('');
+
+function radar(id,data,ref){
+  const svg=document.getElementById(id);svg.innerHTML='';
+  const cx=160,cy=150,R=105,N=cats.length;
+  const ang=i=>-Math.PI/2+i*2*Math.PI/N;
+  const pt=(i,r)=>[cx+Math.cos(ang(i))*r,cy+Math.sin(ang(i))*r];
+  for(let g=1;g<=4;g++){let d='';for(let i=0;i<N;i++){const[x,y]=pt(i,R*g/4);d+=(i?'L':'M')+x+' '+y+' ';}svg.appendChild(el('path',{d:d+'Z',fill:'none',stroke:'#273449','stroke-width':1}));}
+  for(let i=0;i<N;i++){const[x,y]=pt(i,R);svg.appendChild(el('line',{x1:cx,y1:cy,x2:x,y2:y,stroke:'#273449','stroke-width':1}));
+    const[lx,ly]=pt(i,R+20);const t=el('text',{x:lx,y:ly+4,'text-anchor':'middle',fill:'#94a3b8','font-size':12,'font-weight':700});t.textContent=cats[i];svg.appendChild(t);}
+  const poly=(vals,stroke,fill,dash)=>{let d='';vals.forEach((v,i)=>{const[x,y]=pt(i,R*v/100);d+=(i?'L':'M')+x+' '+y+' ';});
+    svg.appendChild(el('path',{d:d+'Z',fill:fill,stroke:stroke,'stroke-width':2,'stroke-dasharray':dash||'none'}));};
+  poly(ref,'#64748b','none','4 4');
+  poly(data,'#fb7185','rgba(251,113,133,.22)');
+  data.forEach((v,i)=>{const[x,y]=pt(i,R*v/100);const c=el('circle',{cx:x,cy:y,r:4,fill:'#fb7185',stroke:'#0f172a','stroke-width':1.5,style:'cursor:pointer'});
+    c.addEventListener('mousemove',e=>showTip(e,`${cats[i]}：${v}点`));c.addEventListener('mouseleave',hideTip);svg.appendChild(c);});
+}
+function drawStore(){
+  const s=stores[+document.getElementById('store').value];
+  radar('radar',s.s,avg);
+  document.getElementById('bScore').textContent=comp(s);
+  document.getElementById('bScore').style.color=col(comp(s)).replace('var(--','').replace(')','')?'':'';
+  document.getElementById('catBars').innerHTML=cats.map((c,i)=>`<div class="brow"><div class="n">${c}</div><div class="track"><span style="width:0;background:${col(s.s[i])}" data-w="${s.s[i]}"></span></div><div class="val">${s.s[i]}</div></div>`).join('');
+  requestAnimationFrame(()=>document.querySelectorAll('#catBars .track span').forEach(x=>x.style.width=x.dataset.w+'%'));
+}
+function rankRender(){
+  document.getElementById('rankBody').innerHTML=[...stores].sort((a,b)=>comp(b)-comp(a)).map((s,i)=>`
+    <div class="rank"><div class="no">${i+1}</div><div class="nm">${s.n}</div>
+    <div class="sc" style="color:${col(comp(s))}">${comp(s)}</div>
+    <span class="tag ${comp(s)>=85?'g':comp(s)>=75?'a':'r'}">${comp(s)>=85?'優良':comp(s)>=75?'良好':'要改善'}</span></div>`).join('');
+}
+// 推移
+function trendChart(){
+  const data=[{l:'1月',v:78},{l:'2月',v:80},{l:'3月',v:79},{l:'4月',v:83},{l:'5月',v:85},{l:'6月',v:87}];
+  const svg=document.getElementById('trend');svg.innerHTML='';const W=640,H=240,pl=40,pb=26,pt=14;
+  const min=60,max=100,x=i=>pl+i*(W-pl-10)/(data.length-1),y=v=>pt+(1-(v-min)/(max-min))*(H-pt-pb);
+  for(let k=0;k<=4;k++){const yy=pt+k*(H-pt-pb)/4,val=max-(max-min)*k/4;svg.appendChild(el('line',{x1:pl,y1:yy,x2:W-10,y2:yy,stroke:'#273449'}));const t=el('text',{x:pl-6,y:yy+3,'text-anchor':'end',fill:'#64748b','font-size':10});t.textContent=val;svg.appendChild(t);}
+  const defs=el('defs');defs.innerHTML='<linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fb7185" stop-opacity=".4"/><stop offset="1" stop-color="#fb7185" stop-opacity="0"/></linearGradient>';svg.appendChild(defs);
+  let d='M'+x(0)+' '+y(data[0].v);data.forEach((p,i)=>{if(i)d+=' L'+x(i)+' '+y(p.v);});
+  svg.appendChild(el('path',{d:d+` L${x(data.length-1)} ${H-pb} L${x(0)} ${H-pb} Z`,fill:'url(#tg)'}));
+  const line=el('path',{d,fill:'none',stroke:'#fb7185','stroke-width':2.5});svg.appendChild(line);
+  const len=line.getTotalLength();line.style.strokeDasharray=len;line.style.strokeDashoffset=len;line.style.transition='stroke-dashoffset 1s';requestAnimationFrame(()=>line.style.strokeDashoffset=0);
+  data.forEach((p,i)=>{const c=el('circle',{cx:x(i),cy:y(p.v),r:4,fill:'#fb7185',stroke:'#0f172a','stroke-width':2,style:'cursor:pointer'});c.addEventListener('mousemove',e=>showTip(e,`${p.l}：${p.v}点`));c.addEventListener('mouseleave',hideTip);svg.appendChild(c);const t=el('text',{x:x(i),y:H-8,'text-anchor':'middle',fill:'#64748b','font-size':10});t.textContent=p.l;svg.appendChild(t);});
+}
+// 入力
+const svcItems=['第一声・あいさつ','笑顔・アイコンタクト','レジ操作','ひと言の声かけ','見送り'];
+const clnItems=['トイレ','売場の床','什器・棚','厨房','店頭'];
+const svc=new Array(svcItems.length).fill(0),cln=new Array(clnItems.length).fill(-1);
+function buildInput(){
+  document.getElementById('svcQ').innerHTML=svcItems.map((q,qi)=>`<div class="q"><div class="t">${qi+1}. ${q}</div><div class="stars">${[1,2,3,4,5].map(v=>`<span class="star" data-q="${qi}" data-v="${v}" onclick="sv(${qi},${v})">★</span>`).join('')}</div></div>`).join('');
+  document.getElementById('clnQ').innerHTML=clnItems.map((q,qi)=>`<div class="q"><div class="t">${q}</div><div class="seg"><button class="ok" onclick="cl(${qi},2,this)">○</button><button class="na" onclick="cl(${qi},1,this)">△</button><button class="ng" onclick="cl(${qi},0,this)">×</button></div></div>`).join('');
+}
+function sv(qi,v){svc[qi]=v;document.querySelectorAll(`.star[data-q="${qi}"]`).forEach(s=>s.classList.toggle('on',+s.dataset.v<=v));calcInput();}
+function cl(qi,v,btn){cln[qi]=v;const seg=btn.parentElement;seg.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');calcInput();}
+function calcInput(){
+  if(svc.some(s=>s===0)||cln.some(c=>c===-1)){document.getElementById('inScore').textContent='—';return;}
+  const svcScore=svc.reduce((a,b)=>a+b,0)/(svcItems.length*5);
+  const clnScore=cln.reduce((a,b)=>a+b,0)/(clnItems.length*2);
+  document.getElementById('inScore').textContent=Math.round((svcScore*0.5+clnScore*0.5)*100);
+}
+// タブ
+const drawn={};
+function draw(t){if(t==='score'&&!drawn.s){drawStore();rankRender();drawn.s=1;}if(t==='trend'&&!drawn.t){trendChart();drawn.t=1;}if(t==='input'&&!drawn.i){buildInput();drawn.i=1;}}
+document.querySelectorAll('.tab').forEach(tab=>{tab.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));tab.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p-'+tab.dataset.t).classList.add('active');draw(tab.dataset.t);};});
+draw('score');
+</script>
+</body>
+</html>

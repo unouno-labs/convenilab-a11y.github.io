@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【デモ】月次セルフチェック</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@600&display=swap');
+:root{--blue:#0056A8;--indigo:#4f46e5;--indigo-dark:#3730a3;--indigo-light:#eef2ff;
+--green:#16a34a;--green-light:#dcfce7;--amber:#d97706;--red:#dc2626;--red-light:#fee2e2;--gold:#F4A300;
+--white:#fff;--gray-50:#f8f9fc;--gray-100:#eef1f7;--gray-200:#e2e6ef;--gray-300:#c4cad8;--gray-500:#7a8299;--gray-700:#414a63;--gray-900:#1a1e2e;--radius:14px;--shadow:0 4px 24px rgba(79,70,229,.12)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;-webkit-text-size-adjust:100%}
+.demo-banner{background:linear-gradient(90deg,#f59e0b,#d97706);padding:10px 20px;text-align:center;position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.demo-badge{background:#fff;color:#92400e;font-size:11px;font-weight:900;padding:3px 10px;border-radius:5px;letter-spacing:1px}.demo-text{color:#fff;font-size:12px;font-weight:700}
+.site-header{background:linear-gradient(135deg,var(--indigo-dark),var(--indigo));padding:14px 20px;position:sticky;top:44px;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.2)}
+.site-header-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.site-logo{background:var(--white);border-radius:7px;padding:5px 9px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;color:var(--indigo);line-height:1.3;text-align:center}
+.site-title{color:var(--white);font-size:15px;font-weight:700}.site-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:1px}
+.lang{display:flex;gap:4px;background:rgba(255,255,255,.15);border-radius:8px;padding:3px}
+.lang button{padding:5px 11px;background:transparent;border:0;border-radius:6px;color:rgba(255,255,255,.8);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}.lang button.active{background:#fff;color:var(--indigo)}
+.wrap{max-width:700px;margin:0 auto;padding:18px}
+.progress{display:flex;gap:6px;margin-bottom:16px}
+.pstep{flex:1;height:6px;border-radius:6px;background:var(--gray-200)}.pstep.on{background:var(--indigo)}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sec-num{width:26px;height:26px;border-radius:50%;background:var(--indigo);color:#fff;font-family:'Oswald',sans-serif;font-weight:600;display:flex;align-items:center;justify-content:center;font-size:14px}
+.sec-title{font-size:15px;font-weight:900}
+.sec-note{font-size:11px;color:var(--gray-500);margin:0 0 12px 36px;line-height:1.6}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:6px 4px;margin-bottom:16px}
+.q{padding:13px 14px;border-bottom:1px solid var(--gray-100)}.q:last-child{border-bottom:0}
+.q-txt{font-size:13.5px;font-weight:700;margin-bottom:10px;line-height:1.5}
+.scale{display:flex;gap:5px}.scale button{flex:1;padding:9px 3px;border:1.5px solid var(--gray-200);border-radius:10px;background:var(--white);cursor:pointer;font-family:inherit;text-align:center}
+.scale .face{font-size:19px;display:block}.scale .lab{font-size:9px;color:var(--gray-500);font-weight:700;margin-top:2px}
+.scale button.sel{border-color:var(--indigo);background:var(--indigo-light)}.scale button.sel .lab{color:var(--indigo-dark)}
+.yn{display:flex;gap:8px}.yn button{flex:1;padding:10px;border:1.5px solid var(--gray-200);border-radius:10px;background:var(--white);font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer}
+.yn button.yes.on{background:var(--green-light);border-color:var(--green);color:#166534}.yn button.no.on{background:var(--red-light);border-color:var(--red);color:#991b1b}
+.submit{width:100%;padding:15px;background:linear-gradient(135deg,var(--indigo),var(--indigo-dark));color:#fff;border:0;border-radius:12px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(79,70,229,.3)}
+.submit:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.result{display:none;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:16px}
+.result .ic{font-size:44px;text-align:center}.result h2{font-size:19px;font-weight:900;text-align:center;margin:6px 0}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.res-box{background:var(--gray-50);border-radius:12px;padding:14px;text-align:center}
+.res-box .l{font-size:11px;color:var(--gray-500);font-weight:700}.res-box .v{font-size:30px;font-weight:900;font-family:'Oswald',sans-serif;margin-top:4px}
+.agg{display:flex;align-items:center;gap:10px;padding:6px 0}.agg .an{flex:1;font-size:12px;font-weight:700}.agg .ab{width:110px;background:var(--gray-100);border-radius:5px;height:11px;overflow:hidden}.agg .ab span{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),#818cf8)}.agg .av{width:36px;text-align:right;font-family:'Oswald',sans-serif;font-weight:600;color:var(--indigo-dark)}
+.warn{background:var(--red-light);color:#991b1b;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700;margin-top:12px;line-height:1.7}
+.retry{margin-top:14px;background:none;border:1.5px solid var(--gray-300);color:var(--gray-700);padding:9px 16px;border-radius:10px;font-family:inherit;font-weight:700;font-size:12px;cursor:pointer;width:100%}
+.foot{text-align:center;padding:16px 18px 40px;color:var(--gray-500);font-size:12px;line-height:1.9}.foot a{color:var(--indigo);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="demo-banner"><span class="demo-badge">DEMO</span><span class="demo-text" data-jp="これはサンプル画面です。回答は保存されません。" data-en="This is a sample. Answers are not saved.">これはサンプル画面です。回答は保存されません。</span></div>
+<header class="site-header"><div class="site-header-inner">
+  <div class="site-logo">コンビニ<br>現場改善ラボ</div>
+  <div style="flex:1;min-width:140px"><div class="site-title" data-jp="月次セルフチェック" data-en="Monthly Self-Check">月次セルフチェック</div><div class="site-sub" data-jp="満足度＋コンプライアンスを毎月ひとまとめで" data-en="Satisfaction + compliance, once a month">満足度＋コンプライアンスを毎月ひとまとめで</div></div>
+  <div class="lang"><button class="active" onclick="setLang('jp')">日本語</button><button onclick="setLang('en')">EN</button></div>
+</div></header>
+<div class="wrap">
+  <div class="progress"><div class="pstep on"></div><div class="pstep on"></div></div>
+
+  <div id="result" class="result">
+    <div class="ic" id="rIc">🎉</div><h2 id="rTitle"></h2>
+    <div class="res-grid">
+      <div class="res-box"><div class="l" data-jp="満足度スコア" data-en="Satisfaction">満足度スコア</div><div class="v" id="rSat" style="color:var(--indigo)">—</div></div>
+      <div class="res-box"><div class="l" data-jp="コンプラ順守" data-en="Compliance">コンプラ順守</div><div class="v" id="rComp">—</div></div>
+    </div>
+    <div style="margin-top:16px" id="rAgg"></div>
+    <div class="warn" id="rWarn" style="display:none"></div>
+    <button class="retry" onclick="reset()" data-jp="↻ もう一度デモを試す" data-en="↻ Try again">↻ もう一度デモを試す</button>
+  </div>
+
+  <div id="formArea">
+    <div class="sec-head"><div class="sec-num">1</div><div class="sec-title" data-jp="スタッフ満足度" data-en="Staff Satisfaction">スタッフ満足度</div></div>
+    <div class="sec-note" data-jp="いまの気持ちを5段階で。率直な回答が改善につながります。" data-en="Rate your feelings in 5 steps. Honest answers help us improve.">いまの気持ちを5段階で。率直な回答が改善につながります。</div>
+    <div class="card" id="satQ"></div>
+
+    <div class="sec-head"><div class="sec-num">2</div><div class="sec-title" data-jp="コンプライアンス確認" data-en="Compliance Check">コンプライアンス確認</div></div>
+    <div class="sec-note" data-jp="法令・ルールの順守状況をセルフチェック。" data-en="Self-check of rules and laws.">法令・ルールの順守状況をセルフチェック。</div>
+    <div class="card" id="compQ"></div>
+
+    <button class="submit" id="btn" disabled onclick="submit()" data-jp="回答を送信する" data-en="Submit">回答を送信する</button>
+  </div>
+  <div class="foot" data-jp="── コンビニ現場改善ラボのサンプルデモ ──" data-en="── Sample demo ──">── コンビニ現場改善ラボのサンプルデモ ──<br><a href="tools.html">← ツール一覧へもどる</a> ｜ <a href="https://note.com/convenience_lab" target="_blank">noteで問い合わせる</a></div>
+</div>
+<script>
+const sat=[
+  {jp:'職場の雰囲気に満足していますか？',en:'Are you satisfied with the atmosphere?',base:4.1},
+  {jp:'シフトの希望は通りやすいですか？',en:'Is it easy to get preferred shifts?',base:3.8},
+  {jp:'仕事にやりがいを感じますか？',en:'Do you feel your work is rewarding?',base:4.0},
+  {jp:'上司・先輩に相談しやすいですか？',en:'Is it easy to consult seniors?',base:3.9},
+];
+const comp=[
+  {jp:'年齢確認（酒・たばこ）を徹底していますか？',en:'Is age verification enforced?'},
+  {jp:'レジ金・釣銭の管理ルールを守っていますか？',en:'Are cash register rules followed?'},
+  {jp:'消費期限・賞味期限を管理していますか？',en:'Are expiry dates managed?'},
+  {jp:'個人情報を適切に保管していますか？',en:'Is personal info stored securely?'},
+];
+const scaleJp=['とても不満','不満','ふつう','満足','とても満足'],scaleEn=['Very bad','Bad','Okay','Good','Great'],faces=['😣','🙁','😐','🙂','😄'];
+let lang='jp';const sAns=new Array(sat.length).fill(0),cAns=new Array(comp.length).fill(null);
+function render(){
+  document.getElementById('satQ').innerHTML=sat.map((q,qi)=>`<div class="q"><div class="q-txt">${qi+1}. ${lang==='jp'?q.jp:q.en}</div><div class="scale">${[0,1,2,3,4].map(i=>`<button data-q="${qi}" data-v="${i+1}" onclick="ps(${qi},${i+1},this)"><span class="face">${faces[i]}</span><span class="lab">${lang==='jp'?scaleJp[i]:scaleEn[i]}</span></button>`).join('')}</div></div>`).join('');
+  document.getElementById('compQ').innerHTML=comp.map((q,qi)=>`<div class="q"><div class="q-txt">${qi+1}. ${lang==='jp'?q.jp:q.en}</div><div class="yn"><button class="yes ${cAns[qi]===1?'on':''}" onclick="pc(${qi},1)">${lang==='jp'?'できている':'Yes'}</button><button class="no ${cAns[qi]===0?'on':''}" onclick="pc(${qi},0)">${lang==='jp'?'できていない':'No'}</button></div></div>`).join('');
+  // 選択復元
+  sAns.forEach((v,qi)=>{if(v)document.querySelector(`.scale button[data-q="${qi}"][data-v="${v}"]`)?.classList.add('sel');});
+}
+function ps(qi,v,el){sAns[qi]=v;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');chk();}
+function pc(qi,v){cAns[qi]=v;render();chk();}
+function chk(){document.getElementById('btn').disabled=sAns.some(a=>a===0)||cAns.some(a=>a===null);}
+function setLang(l){lang=l;document.querySelectorAll('.lang button').forEach(b=>b.classList.remove('active'));document.querySelector(`.lang button[onclick="setLang('${l}')"]`).classList.add('active');document.querySelectorAll('[data-jp]').forEach(el=>{if(el.children.length===0)el.textContent=el.getAttribute('data-'+l);});document.getElementById('btn').textContent=document.getElementById('btn').getAttribute('data-'+l);render();}
+function submit(){
+  const satScore=Math.round(sAns.reduce((a,b)=>a+b,0)/(sat.length*5)*100);
+  const ng=comp.filter((q,i)=>cAns[i]===0);const ok=ng.length===0;
+  document.getElementById('rIc').textContent=ok?'🎉':'⚠️';
+  document.getElementById('rTitle').textContent=lang==='jp'?'ご協力ありがとうございました！':'Thank you!';
+  document.getElementById('rSat').textContent=satScore;
+  const rc=document.getElementById('rComp');rc.textContent=ok?(lang==='jp'?'OK':'OK'):(comp.length-ng.length)+'/'+comp.length;rc.style.color=ok?'var(--green)':'var(--red)';
+  document.getElementById('rAgg').innerHTML='<div style="font-size:11px;color:var(--gray-500);font-weight:700;margin-bottom:6px">'+(lang==='jp'?'満足度の内訳（あなたの回答）':'Your satisfaction breakdown')+'</div>'+sat.map((q,i)=>`<div class="agg"><div class="an">${lang==='jp'?q.jp:q.en}</div><div class="ab"><span style="width:${sAns[i]/5*100}%"></span></div><div class="av">${sAns[i]}.0</div></div>`).join('');
+  const w=document.getElementById('rWarn');if(ok){w.style.display='none';}else{w.style.display='block';w.innerHTML=(lang==='jp'?'⚠️ 要改善：':'⚠️ To fix: ')+ng.map(q=>lang==='jp'?q.jp:q.en).join('<br>');}
+  document.getElementById('formArea').style.display='none';document.getElementById('result').style.display='block';window.scrollTo({top:0,behavior:'smooth'});
+}
+function reset(){sAns.fill(0);cAns.fill(null);document.getElementById('result').style.display='none';document.getElementById('formArea').style.display='block';document.getElementById('btn').disabled=true;render();}
+render();
+</script>
+</body>
+</html>
